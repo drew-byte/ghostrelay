@@ -322,7 +322,7 @@ function parseQuery(q) {
   if (!q) return () => true;
 
   // split on AND (case insensitive)
-  const parts = q.split(/AND/i).map(p => p.trim()).filter(Boolean);
+  const parts = q.replace(/\s+AND\s+/gi, '~ANDSPLIT~').split('~ANDSPLIT~').map(p => p.trim()).filter(Boolean);
 
   const matchers = parts.map(part => {
     // field: "exact"
