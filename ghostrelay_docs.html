@@ -1,0 +1,733 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>GhostRelay SIEM — Query Reference</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Syne:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#07090d;--bg2:#0b0e14;--bg3:#0f1420;--bg4:#141a28;--bg5:#1a2236;
+  --border:#1a2640;--border2:#223050;
+  --text:#b0c4de;--text2:#607090;--text3:#334060;
+  --accent:#00d4ff;--accent2:#0099bb;
+  --green:#00e676;--red:#ff4757;--orange:#ff9500;--purple:#c77dff;--yellow:#ffd60a;
+}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:'Syne',sans-serif;font-size:14px;line-height:1.7;display:flex;min-height:100vh}
+
+/* NAV */
+nav{
+  width:250px;background:var(--bg2);border-right:1px solid var(--border);
+  position:fixed;top:0;left:0;height:100vh;overflow-y:auto;padding:0;flex-shrink:0;
+}
+.nav-head{
+  padding:20px 20px 16px;border-bottom:1px solid var(--border);
+  background:var(--bg2);position:sticky;top:0;z-index:2;
+}
+.nav-logo{font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:700;color:var(--accent);letter-spacing:3px}
+.nav-logo em{color:var(--red);font-style:normal}
+.nav-sub{font-size:10px;color:var(--text3);font-family:'JetBrains Mono',monospace;margin-top:4px;letter-spacing:.5px}
+.nav-section{padding:12px 0}
+.nav-section-title{
+  padding:4px 20px;font-size:9px;font-weight:700;letter-spacing:2px;
+  text-transform:uppercase;color:var(--text3);
+}
+a.nav-link{
+  display:block;padding:5px 20px 5px 22px;font-size:12px;color:var(--text2);
+  text-decoration:none;border-left:2px solid transparent;transition:all .12s;
+}
+a.nav-link:hover{color:var(--accent);border-left-color:var(--accent);background:rgba(0,212,255,.04)}
+a.nav-link.active{color:var(--accent);border-left-color:var(--accent);background:rgba(0,212,255,.06)}
+
+/* MAIN */
+main{margin-left:250px;flex:1;padding:52px 64px 80px;max-width:980px}
+
+/* TYPOGRAPHY */
+h1{font-size:34px;font-weight:800;color:#e8f4ff;letter-spacing:-1px;line-height:1.1;margin-bottom:10px}
+h2{font-size:20px;font-weight:700;color:#e8f4ff;margin:52px 0 14px;padding-bottom:10px;border-bottom:1px solid var(--border);scroll-margin-top:20px}
+h3{font-size:14px;font-weight:700;color:var(--accent);margin:28px 0 8px;letter-spacing:.3px;text-transform:uppercase;font-size:11px}
+p{margin-bottom:12px;color:var(--text);line-height:1.75}
+ul,ol{padding-left:20px;margin-bottom:12px}
+li{margin-bottom:5px;color:var(--text2);font-size:13px}
+strong{color:#c8dcf0;font-weight:600}
+code{
+  font-family:'JetBrains Mono',monospace;font-size:11.5px;
+  background:var(--bg4);border:1px solid var(--border2);
+  border-radius:3px;padding:1px 6px;color:var(--purple);
+}
+
+/* HERO */
+.hero{
+  background:var(--bg2);border:1px solid var(--border);border-radius:10px;
+  padding:32px 36px;margin-bottom:44px;
+  border-top:2px solid var(--accent);
+  position:relative;overflow:hidden;
+}
+.hero::before{
+  content:'';position:absolute;top:0;right:0;width:200px;height:100%;
+  background:linear-gradient(135deg,transparent 40%,rgba(0,212,255,.04));
+  pointer-events:none;
+}
+.hero-tag{
+  display:inline-block;background:var(--bg4);border:1px solid var(--border2);
+  border-radius:3px;padding:3px 10px;font-size:10px;
+  font-family:'JetBrains Mono',monospace;color:var(--text3);
+  margin-bottom:14px;letter-spacing:.5px;
+}
+.hero-sub{font-size:15px;color:var(--text2);margin-top:8px;max-width:500px}
+
+/* CODE BLOCKS */
+pre{
+  background:var(--bg2);border:1px solid var(--border);border-radius:6px;
+  padding:16px 18px;overflow-x:auto;margin:10px 0 16px;
+  border-left:3px solid var(--accent2);
+}
+pre code{
+  font-family:'JetBrains Mono',monospace;font-size:12px;
+  color:#c8dcf0;line-height:1.8;background:none;border:none;
+  padding:0;
+}
+.cm{color:var(--text3);font-style:italic}
+.kw{color:var(--accent)}
+.fld{color:var(--purple)}
+.val{color:var(--green)}
+.op{color:var(--orange)}
+.wc{color:var(--yellow)}
+
+/* TABLES */
+.ref-table{width:100%;border-collapse:collapse;margin:10px 0 20px;font-size:12.5px}
+.ref-table th{
+  background:var(--bg3);padding:8px 12px;text-align:left;
+  font-size:9px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;
+  color:var(--text3);border-bottom:1px solid var(--border);
+}
+.ref-table td{padding:8px 12px;border-bottom:1px solid rgba(26,38,64,.6);vertical-align:top}
+.ref-table tr:hover td{background:var(--bg3)}
+.ref-table td:first-child{font-family:'JetBrains Mono',monospace;color:var(--purple);white-space:nowrap}
+.ref-table td:nth-child(2){font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text3);white-space:nowrap}
+.ref-table td:last-child{color:var(--text2);font-size:12px}
+
+/* EID CARDS */
+.eid-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:10px 0 20px}
+.eid-card{
+  background:var(--bg2);border:1px solid var(--border);border-radius:6px;
+  padding:14px 16px;border-top:2px solid;
+}
+.eid-num{font-family:'JetBrains Mono',monospace;font-size:24px;font-weight:700;margin-bottom:2px}
+.eid-name{font-size:12px;font-weight:600;color:#c8dcf0;margin-bottom:6px}
+.eid-desc{font-size:11.5px;color:var(--text2);line-height:1.6}
+.eid-fields{margin-top:8px;font-size:10.5px;font-family:'JetBrains Mono',monospace;color:var(--text3)}
+
+/* CALLOUT */
+.note{
+  background:var(--bg3);border:1px solid var(--border2);border-left:3px solid var(--accent2);
+  border-radius:0 6px 6px 0;padding:12px 16px;margin:12px 0;
+  font-size:12.5px;color:var(--text2);
+}
+.note strong{color:#c8dcf0}
+
+/* OP TABLE */
+.op-table{width:100%;border-collapse:collapse;margin:10px 0 20px;font-size:12.5px}
+.op-table th{background:var(--bg3);padding:8px 14px;text-align:left;font-size:9px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--text3);border-bottom:1px solid var(--border)}
+.op-table td{padding:9px 14px;border-bottom:1px solid rgba(26,38,64,.5);vertical-align:top}
+.op-table td:first-child{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--orange);white-space:nowrap;width:140px}
+.op-table td:nth-child(2){color:var(--text2);font-size:12px}
+.op-table td:last-child{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text3)}
+.op-table tr:hover td{background:var(--bg3)}
+
+/* SCROLLBAR */
+::-webkit-scrollbar{width:5px}
+::-webkit-scrollbar-track{background:var(--bg2)}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
+
+/* INLINE TAG */
+.tag{display:inline-block;padding:1px 7px;border-radius:3px;font-size:10px;font-family:'JetBrains Mono',monospace;font-weight:700;border:1px solid}
+.tag-blue{background:#071a2e;border-color:#1f6feb;color:var(--accent)}
+.tag-green{background:#072012;border-color:#1a5c30;color:var(--green)}
+.tag-red{background:#200707;border-color:#5c1a1a;color:var(--red)}
+.tag-orange{background:#201200;border-color:#5c3300;color:var(--orange)}
+.tag-purple{background:#180720;border-color:#4c2070;color:var(--purple)}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-head">
+    <div class="nav-logo">Ghost<em>Relay</em></div>
+    <div class="nav-sub">SIEM · QUERY REFERENCE</div>
+  </div>
+  <div class="nav-section">
+    <div class="nav-section-title">Overview</div>
+    <a class="nav-link" href="#index">Index &amp; Data Model</a>
+    <a class="nav-link" href="#interface">Interface Layout</a>
+  </div>
+  <div class="nav-section">
+    <div class="nav-section-title">Query Language</div>
+    <a class="nav-link" href="#kql-syntax">KQL Syntax</a>
+    <a class="nav-link" href="#operators">Operators</a>
+    <a class="nav-link" href="#wildcards">Wildcards</a>
+    <a class="nav-link" href="#boolean">Boolean Logic</a>
+    <a class="nav-link" href="#examples">Query Examples</a>
+  </div>
+  <div class="nav-section">
+    <div class="nav-section-title">Field Reference</div>
+    <a class="nav-link" href="#fields-common">Common Fields</a>
+    <a class="nav-link" href="#fields-process">Process Fields</a>
+    <a class="nav-link" href="#fields-network">Network Fields</a>
+    <a class="nav-link" href="#fields-file">File Fields</a>
+    <a class="nav-link" href="#fields-dns">DNS Fields</a>
+    <a class="nav-link" href="#fields-access">Process Access</a>
+    <a class="nav-link" href="#fields-auth">Auth &amp; Service</a>
+  </div>
+  <div class="nav-section">
+    <div class="nav-section-title">Event IDs</div>
+    <a class="nav-link" href="#sysmon">Sysmon Events</a>
+    <a class="nav-link" href="#winsec">Windows Security</a>
+    <a class="nav-link" href="#winsys">Windows System</a>
+  </div>
+  <div class="nav-section">
+    <div class="nav-section-title">Index</div>
+    <a class="nav-link" href="#index-schema">ghost-relay-*</a>
+    <a class="nav-link" href="#channels">Log Channels</a>
+  </div>
+</nav>
+
+<main>
+
+<!-- ══════════════════════ HERO -->
+<div class="hero">
+  <div class="hero-tag">GHOST-RELAY-* · 1,551 DOCUMENTS · 2024-03-11 → 2024-03-13</div>
+  <h1>Query Reference</h1>
+  <p class="hero-sub">Field names, operators, syntax, and event ID reference for the GhostRelay SIEM.</p>
+</div>
+
+<!-- ══════════════════════ INDEX -->
+<section id="index">
+  <h2>Index &amp; Data Model</h2>
+  <p>All log data lives in a single index pattern: <code>ghost-relay-*</code>. The index contains 1,551 documents spanning three days. Each document is a normalized Windows event with a flat field structure — no nested objects.</p>
+  <p>Source logs come from three Windows channels, normalized into a common schema:</p>
+  <table class="ref-table">
+    <tr><th>Channel</th><th>Source</th><th>Event IDs</th></tr>
+    <tr><td>Microsoft-Windows-Sysmon/Operational</td><td>Sysmon agent</td><td>1, 3, 10, 11, 22</td></tr>
+    <tr><td>Security</td><td>Windows Security Audit</td><td>4624, 4648, 4688</td></tr>
+    <tr><td>System</td><td>Windows System</td><td>7045</td></tr>
+  </table>
+</section>
+
+<!-- ══════════════════════ INTERFACE -->
+<section id="interface">
+  <h2>Interface Layout</h2>
+  <p>The SIEM has three main zones:</p>
+  <ul>
+    <li><strong>Top bar</strong> — index selector, document count, time range</li>
+    <li><strong>Query bar</strong> — KQL input, Run button, saved search shortcuts</li>
+    <li><strong>Left panel</strong> — live facet counts for <code>event_id</code>, <code>host</code>, <code>user</code>. Click any facet value to append it to the current query.</li>
+    <li><strong>Histogram</strong> — event density over time for the current result set</li>
+    <li><strong>Results table</strong> — sortable columns, 50 rows per page</li>
+    <li><strong>Detail drawer</strong> — click any row to expand all fields for that document</li>
+  </ul>
+  <div class="note"><strong>Facet click behavior:</strong> Clicking a facet value in the left panel appends <code>field: "value"</code> to whatever is currently in the query bar using <code>AND</code>. This lets you drill down incrementally without retyping.</div>
+</section>
+
+<!-- ══════════════════════ KQL SYNTAX -->
+<section id="kql-syntax">
+  <h2>KQL Syntax</h2>
+  <p>The query bar accepts KQL (Kibana Query Language). Queries are case-insensitive. Press <kbd>Enter</kbd> or click <strong>▶ Search</strong> to execute.</p>
+
+  <h3>Basic field match</h3>
+  <pre><code><span class="cm"># Exact match — quotes required for multi-word values or special chars</span>
+<span class="fld">event_id</span>: <span class="val">"1"</span>
+<span class="fld">host</span>: <span class="val">"WORKSTATION-03"</span>
+<span class="fld">granted_access</span>: <span class="val">"0x1FFFFF"</span>
+<span class="fld">dst_port</span>: <span class="val">"443"</span></code></pre>
+
+  <h3>Wildcard match</h3>
+  <pre><code><span class="cm"># * matches any sequence of characters</span>
+<span class="fld">command_line</span>: <span class="wc">*powershell*</span>
+<span class="fld">image</span>: <span class="wc">*lsass*</span>
+<span class="fld">user</span>: <span class="wc">*jmendoza*</span>
+<span class="fld">target_filename</span>: <span class="wc">*Temp*</span>
+
+<span class="cm"># Prefix wildcard — ends with</span>
+<span class="fld">image</span>: <span class="wc">*cmd.exe</span>
+
+<span class="cm"># Suffix wildcard — starts with</span>
+<span class="fld">target_filename</span>: <span class="wc">C:\Windows\Temp\*</span></code></pre>
+
+  <h3>Boolean combinations</h3>
+  <pre><code><span class="cm"># AND — both conditions must match</span>
+<span class="fld">event_id</span>: <span class="val">"1"</span> <span class="kw">AND</span> <span class="fld">host</span>: <span class="val">"WORKSTATION-03"</span>
+
+<span class="cm"># Multiple AND conditions</span>
+<span class="fld">event_id</span>: <span class="val">"3"</span> <span class="kw">AND</span> <span class="fld">dst_port</span>: <span class="val">"443"</span> <span class="kw">AND</span> <span class="fld">host</span>: <span class="val">"WORKSTATION-03"</span></code></pre>
+
+  <h3>Free-text search</h3>
+  <pre><code><span class="cm"># No field prefix — searches all fields</span>
+psexec
+185.220.101.47
+lsass
+PSEXESVC</code></pre>
+</section>
+
+<!-- ══════════════════════ OPERATORS -->
+<section id="operators">
+  <h2>Operators</h2>
+  <table class="op-table">
+    <tr><th>Syntax</th><th>Behavior</th><th>Example</th></tr>
+    <tr>
+      <td>field: "value"</td>
+      <td>Exact match, case-insensitive</td>
+      <td>event_id: "10"</td>
+    </tr>
+    <tr>
+      <td>field: *value*</td>
+      <td>Contains substring (wildcard both sides)</td>
+      <td>command_line: *encoded*</td>
+    </tr>
+    <tr>
+      <td>field: value*</td>
+      <td>Starts with prefix</td>
+      <td>image: C:\Windows\Temp\*</td>
+    </tr>
+    <tr>
+      <td>field: *value</td>
+      <td>Ends with suffix</td>
+      <td>image: *powershell.exe</td>
+    </tr>
+    <tr>
+      <td>field: value</td>
+      <td>Contains (no quotes, no wildcard)</td>
+      <td>host: WORKSTATION</td>
+    </tr>
+    <tr>
+      <td>AND</td>
+      <td>Both clauses must match</td>
+      <td>event_id: "1" AND user: *jmendoza*</td>
+    </tr>
+    <tr>
+      <td>(no prefix)</td>
+      <td>Full-document text search</td>
+      <td>psexec64</td>
+    </tr>
+  </table>
+  <div class="note"><strong>Note:</strong> <code>OR</code> and <code>NOT</code> are not supported in this implementation. To search for multiple values of the same field, run separate queries or use a broad wildcard and refine with additional <code>AND</code> conditions.</div>
+</section>
+
+<!-- ══════════════════════ WILDCARDS -->
+<section id="wildcards">
+  <h2>Wildcards</h2>
+  <p>The <code>*</code> character matches any sequence of characters including none. It can appear at the start, end, or both sides of a value.</p>
+  <pre><code><span class="cm"># Match any file in Temp directory</span>
+<span class="fld">target_filename</span>: <span class="wc">*\Temp\*</span>
+
+<span class="cm"># Match any .exe dropped in Temp</span>
+<span class="fld">target_filename</span>: <span class="wc">*\Temp\*.exe</span>
+
+<span class="cm"># Match any process whose name ends with cmd.exe (catches full paths)</span>
+<span class="fld">image</span>: <span class="wc">*cmd.exe</span>
+
+<span class="cm"># Match encoded command flag variants (-Enc, -EncodedCommand)</span>
+<span class="fld">command_line</span>: <span class="wc">*-Enc*</span>
+
+<span class="cm"># Match any user in the CORP domain</span>
+<span class="fld">user</span>: <span class="wc">CORP\*</span></code></pre>
+</section>
+
+<!-- ══════════════════════ BOOLEAN -->
+<section id="boolean">
+  <h2>Boolean Logic</h2>
+  <p>Use <code>AND</code> (uppercase) to combine multiple field conditions. All conditions must be true for a document to match.</p>
+  <pre><code><span class="cm"># Two conditions</span>
+<span class="fld">event_id</span>: <span class="val">"1"</span> <span class="kw">AND</span> <span class="fld">user</span>: <span class="wc">*jmendoza*</span>
+
+<span class="cm"># Three conditions</span>
+<span class="fld">event_id</span>: <span class="val">"3"</span> <span class="kw">AND</span> <span class="fld">dst_ip</span>: <span class="val">"185.220.101.47"</span> <span class="kw">AND</span> <span class="fld">dst_port</span>: <span class="val">"443"</span>
+
+<span class="cm"># Mix exact and wildcard</span>
+<span class="fld">event_id</span>: <span class="val">"11"</span> <span class="kw">AND</span> <span class="fld">host</span>: <span class="val">"WORKSTATION-03"</span> <span class="kw">AND</span> <span class="fld">target_filename</span>: <span class="wc">*\Temp\*</span>
+
+<span class="cm"># Narrow by channel and event type</span>
+<span class="fld">channel</span>: <span class="wc">*Security*</span> <span class="kw">AND</span> <span class="fld">event_id</span>: <span class="val">"4624"</span> <span class="kw">AND</span> <span class="fld">logon_type</span>: <span class="val">"3"</span></code></pre>
+</section>
+
+<!-- ══════════════════════ EXAMPLES -->
+<section id="examples">
+  <h2>Query Examples</h2>
+
+  <h3>Process creation</h3>
+  <pre><code><span class="cm"># All process creation events</span>
+<span class="fld">event_id</span>: <span class="val">"1"</span>
+
+<span class="cm"># Process creation on a specific host</span>
+<span class="fld">event_id</span>: <span class="val">"1"</span> <span class="kw">AND</span> <span class="fld">host</span>: <span class="val">"WORKSTATION-03"</span>
+
+<span class="cm"># Find processes spawned by a specific parent</span>
+<span class="fld">event_id</span>: <span class="val">"1"</span> <span class="kw">AND</span> <span class="fld">parent_image</span>: <span class="wc">*WINWORD*</span>
+
+<span class="cm"># Command lines containing a specific flag</span>
+<span class="fld">event_id</span>: <span class="val">"1"</span> <span class="kw">AND</span> <span class="fld">command_line</span>: <span class="wc">*-Enc*</span>
+
+<span class="cm"># Processes run by a specific user</span>
+<span class="fld">event_id</span>: <span class="val">"1"</span> <span class="kw">AND</span> <span class="fld">user</span>: <span class="wc">*jmendoza*</span>
+
+<span class="cm"># Processes with a specific executable name (anywhere in path)</span>
+<span class="fld">event_id</span>: <span class="val">"1"</span> <span class="kw">AND</span> <span class="fld">image</span>: <span class="wc">*net.exe</span></code></pre>
+
+  <h3>Network connections</h3>
+  <pre><code><span class="cm"># All network connection events</span>
+<span class="fld">event_id</span>: <span class="val">"3"</span>
+
+<span class="cm"># Connections to a specific IP</span>
+<span class="fld">event_id</span>: <span class="val">"3"</span> <span class="kw">AND</span> <span class="fld">dst_ip</span>: <span class="val">"185.220.101.47"</span>
+
+<span class="cm"># Connections on port 443 from a specific host</span>
+<span class="fld">event_id</span>: <span class="val">"3"</span> <span class="kw">AND</span> <span class="fld">dst_port</span>: <span class="val">"443"</span> <span class="kw">AND</span> <span class="fld">host</span>: <span class="val">"WORKSTATION-03"</span>
+
+<span class="cm"># Network connections from PowerShell</span>
+<span class="fld">event_id</span>: <span class="val">"3"</span> <span class="kw">AND</span> <span class="fld">image</span>: <span class="wc">*powershell*</span></code></pre>
+
+  <h3>File creation</h3>
+  <pre><code><span class="cm"># All file creation events</span>
+<span class="fld">event_id</span>: <span class="val">"11"</span>
+
+<span class="cm"># Files created in Windows Temp</span>
+<span class="fld">event_id</span>: <span class="val">"11"</span> <span class="kw">AND</span> <span class="fld">target_filename</span>: <span class="wc">*\Temp\*</span>
+
+<span class="cm"># Specific file extension</span>
+<span class="fld">event_id</span>: <span class="val">"11"</span> <span class="kw">AND</span> <span class="fld">target_filename</span>: <span class="wc">*.exe</span>
+
+<span class="cm"># Files created by a specific process</span>
+<span class="fld">event_id</span>: <span class="val">"11"</span> <span class="kw">AND</span> <span class="fld">image</span>: <span class="wc">*powershell*</span></code></pre>
+
+  <h3>DNS queries</h3>
+  <pre><code><span class="cm"># All DNS query events</span>
+<span class="fld">event_id</span>: <span class="val">"22"</span>
+
+<span class="cm"># DNS from a specific host</span>
+<span class="fld">event_id</span>: <span class="val">"22"</span> <span class="kw">AND</span> <span class="fld">host</span>: <span class="val">"WORKSTATION-03"</span>
+
+<span class="cm"># Specific domain query</span>
+<span class="fld">event_id</span>: <span class="val">"22"</span> <span class="kw">AND</span> <span class="fld">dns_query</span>: <span class="val">"xk3r9v2malpq.net"</span>
+
+<span class="cm"># DNS queries that returned NXDOMAIN</span>
+<span class="fld">event_id</span>: <span class="val">"22"</span> <span class="kw">AND</span> <span class="fld">dns_result</span>: <span class="wc">*NXDOMAIN*</span>
+
+<span class="cm"># DNS queries from PowerShell specifically</span>
+<span class="fld">event_id</span>: <span class="val">"22"</span> <span class="kw">AND</span> <span class="fld">image</span>: <span class="wc">*powershell*</span></code></pre>
+
+  <h3>Process access (EID 10)</h3>
+  <pre><code><span class="cm"># All process access events</span>
+<span class="fld">event_id</span>: <span class="val">"10"</span>
+
+<span class="cm"># Access with a specific access mask</span>
+<span class="fld">event_id</span>: <span class="val">"10"</span> <span class="kw">AND</span> <span class="fld">granted_access</span>: <span class="val">"0x1FFFFF"</span>
+
+<span class="cm"># Access targeting a specific process</span>
+<span class="fld">event_id</span>: <span class="val">"10"</span> <span class="kw">AND</span> <span class="fld">target_image</span>: <span class="wc">*lsass*</span></code></pre>
+
+  <h3>Authentication events</h3>
+  <pre><code><span class="cm"># Successful logons</span>
+<span class="fld">event_id</span>: <span class="val">"4624"</span>
+
+<span class="cm"># Network logons only (logon type 3)</span>
+<span class="fld">event_id</span>: <span class="val">"4624"</span> <span class="kw">AND</span> <span class="fld">logon_type</span>: <span class="val">"3"</span>
+
+<span class="cm"># Logons for a specific user</span>
+<span class="fld">event_id</span>: <span class="val">"4624"</span> <span class="kw">AND</span> <span class="fld">user</span>: <span class="wc">*jmendoza*</span>
+
+<span class="cm"># Explicit credential logons</span>
+<span class="fld">event_id</span>: <span class="val">"4648"</span>
+
+<span class="cm"># Service installations</span>
+<span class="fld">event_id</span>: <span class="val">"7045"</span></code></pre>
+
+  <h3>Cross-field correlation</h3>
+  <pre><code><span class="cm"># All events on a host for a user</span>
+<span class="fld">host</span>: <span class="val">"WORKSTATION-03"</span> <span class="kw">AND</span> <span class="fld">user</span>: <span class="wc">*jmendoza*</span>
+
+<span class="cm"># EID 11 on specific host by specific user</span>
+<span class="fld">event_id</span>: <span class="val">"11"</span> <span class="kw">AND</span> <span class="fld">host</span>: <span class="val">"WORKSTATION-03"</span> <span class="kw">AND</span> <span class="fld">user</span>: <span class="wc">*jmendoza*</span>
+
+<span class="cm"># Combine channel filter with event type</span>
+<span class="fld">channel</span>: <span class="wc">*Sysmon*</span> <span class="kw">AND</span> <span class="fld">event_id</span>: <span class="val">"1"</span> <span class="kw">AND</span> <span class="fld">host</span>: <span class="val">"WORKSTATION-07"</span></code></pre>
+</section>
+
+<!-- ══════════════════════ FIELDS COMMON -->
+<section id="fields-common">
+  <h2>Common Fields</h2>
+  <p>These fields are present on every document regardless of event type.</p>
+  <table class="ref-table">
+    <tr><th>Field Name</th><th>Type</th><th>Description</th></tr>
+    <tr><td>event_id</td><td>keyword</td><td>Windows Event ID as a string. Use exact match: <code>event_id: "1"</code></td></tr>
+    <tr><td>timestamp</td><td>datetime</td><td>ISO 8601 event time in UTC. Used for sorting and the histogram.</td></tr>
+    <tr><td>host</td><td>keyword</td><td>NetBIOS computer name where the event was recorded.</td></tr>
+    <tr><td>channel</td><td>keyword</td><td>Windows event log channel. Values: <code>Microsoft-Windows-Sysmon/Operational</code>, <code>Security</code>, <code>System</code></td></tr>
+    <tr><td>user</td><td>keyword</td><td>User account associated with the event. Format varies: <code>DOMAIN\username</code>, <code>HOST\username</code>, or bare username.</td></tr>
+    <tr><td>record_id</td><td>keyword</td><td>Unique document ID within the index.</td></tr>
+  </table>
+</section>
+
+<!-- ══════════════════════ FIELDS PROCESS -->
+<section id="fields-process">
+  <h2>Process Fields</h2>
+  <p>Populated on <span class="tag tag-blue">EID 1</span> (Sysmon Process Create) and <span class="tag tag-orange">EID 4688</span> (Windows Security Process Create).</p>
+  <table class="ref-table">
+    <tr><th>Field Name</th><th>Type</th><th>Description</th></tr>
+    <tr><td>image</td><td>keyword</td><td>Full path to the process executable. e.g. <code>C:\Windows\System32\cmd.exe</code></td></tr>
+    <tr><td>command_line</td><td>text</td><td>Complete command line including all arguments. Most useful field for detecting attacker activity.</td></tr>
+    <tr><td>parent_image</td><td>keyword</td><td>Full path of the parent process that spawned this one.</td></tr>
+    <tr><td>process_id</td><td>keyword</td><td>PID of the created process.</td></tr>
+    <tr><td>parent_process_id</td><td>keyword</td><td>PID of the parent process.</td></tr>
+    <tr><td>process_guid</td><td>keyword</td><td>Globally unique process identifier (Sysmon only). Persists across PID reuse.</td></tr>
+    <tr><td>parent_process_guid</td><td>keyword</td><td>GUID of the parent process (Sysmon only).</td></tr>
+    <tr><td>integrity_level</td><td>keyword</td><td>Process integrity level: <code>Low</code>, <code>Medium</code>, <code>High</code>, <code>System</code>.</td></tr>
+    <tr><td>logon_id</td><td>keyword</td><td>Logon session ID associated with the process. Links processes to a logon session.</td></tr>
+    <tr><td>hashes</td><td>keyword</td><td>Cryptographic hashes of the executable. Format: <code>SHA256=...&comma;MD5=...</code></td></tr>
+  </table>
+</section>
+
+<!-- ══════════════════════ FIELDS NETWORK -->
+<section id="fields-network">
+  <h2>Network Fields</h2>
+  <p>Populated on <span class="tag tag-blue">EID 3</span> (Sysmon Network Connect).</p>
+  <table class="ref-table">
+    <tr><th>Field Name</th><th>Type</th><th>Description</th></tr>
+    <tr><td>dst_ip</td><td>ip</td><td>Destination IP address.</td></tr>
+    <tr><td>dst_port</td><td>keyword</td><td>Destination port number as a string.</td></tr>
+    <tr><td>src_ip</td><td>ip</td><td>Source IP address (internal).</td></tr>
+    <tr><td>src_port</td><td>keyword</td><td>Source (ephemeral) port number.</td></tr>
+    <tr><td>protocol</td><td>keyword</td><td>Transport protocol: <code>tcp</code> or <code>udp</code>.</td></tr>
+    <tr><td>image</td><td>keyword</td><td>Process that initiated the connection.</td></tr>
+  </table>
+</section>
+
+<!-- ══════════════════════ FIELDS FILE -->
+<section id="fields-file">
+  <h2>File Fields</h2>
+  <p>Populated on <span class="tag tag-purple">EID 11</span> (Sysmon File Created).</p>
+  <table class="ref-table">
+    <tr><th>Field Name</th><th>Type</th><th>Description</th></tr>
+    <tr><td>target_filename</td><td>keyword</td><td>Full path of the created or overwritten file.</td></tr>
+    <tr><td>image</td><td>keyword</td><td>Process that created the file.</td></tr>
+    <tr><td>user</td><td>keyword</td><td>User context under which the file was created.</td></tr>
+  </table>
+</section>
+
+<!-- ══════════════════════ FIELDS DNS -->
+<section id="fields-dns">
+  <h2>DNS Fields</h2>
+  <p>Populated on <span class="tag tag-blue">EID 22</span> (Sysmon DNS Query).</p>
+  <table class="ref-table">
+    <tr><th>Field Name</th><th>Type</th><th>Description</th></tr>
+    <tr><td>dns_query</td><td>keyword</td><td>Domain name queried.</td></tr>
+    <tr><td>dns_result</td><td>keyword</td><td>Query result. Format: <code>type: 1 &lt;IP&gt;</code> for A record, <code>type: 3 NXDOMAIN</code> for no result.</td></tr>
+    <tr><td>image</td><td>keyword</td><td>Process that issued the DNS query.</td></tr>
+  </table>
+</section>
+
+<!-- ══════════════════════ FIELDS ACCESS -->
+<section id="fields-access">
+  <h2>Process Access Fields</h2>
+  <p>Populated on <span class="tag tag-red">EID 10</span> (Sysmon Process Access).</p>
+  <table class="ref-table">
+    <tr><th>Field Name</th><th>Type</th><th>Description</th></tr>
+    <tr><td>source_image</td><td>keyword</td><td>Process requesting the access handle.</td></tr>
+    <tr><td>target_image</td><td>keyword</td><td>Process being opened/accessed.</td></tr>
+    <tr><td>granted_access</td><td>keyword</td><td>Access mask granted in hex. e.g. <code>0x1FFFFF</code></td></tr>
+    <tr><td>image</td><td>keyword</td><td>Alias for <code>source_image</code> in this context.</td></tr>
+  </table>
+
+  <h3>Common access mask values</h3>
+  <table class="ref-table">
+    <tr><th>Mask</th><th>Name</th><th>Description</th></tr>
+    <tr><td>0x1FFFFF</td><td>PROCESS_ALL_ACCESS</td><td>Full control over the target process.</td></tr>
+    <tr><td>0x1010</td><td>PROCESS_VM_READ | QUERY_INFO</td><td>Read process memory and query information.</td></tr>
+    <tr><td>0x410</td><td>PROCESS_QUERY_INFO | VM_READ</td><td>Common for legitimate tools reading process state.</td></tr>
+    <tr><td>0x40</td><td>PROCESS_DUP_HANDLE</td><td>Duplicate handles from target process.</td></tr>
+  </table>
+</section>
+
+<!-- ══════════════════════ FIELDS AUTH -->
+<section id="fields-auth">
+  <h2>Auth &amp; Service Fields</h2>
+  <p>Populated on <span class="tag tag-green">EID 4624</span>, <span class="tag tag-orange">EID 4648</span>, <span class="tag tag-orange">EID 4688</span>, <span class="tag tag-purple">EID 7045</span>.</p>
+  <table class="ref-table">
+    <tr><th>Field Name</th><th>Type</th><th>Description</th></tr>
+    <tr><td>logon_type</td><td>keyword</td><td>Logon type code. See table below. Present on 4624.</td></tr>
+    <tr><td>src_ip</td><td>ip</td><td>Source IP of the logon request. Present on 4624.</td></tr>
+    <tr><td>service_name</td><td>keyword</td><td>Name of the installed service. Present on 7045. Also used as target server name on 4648.</td></tr>
+    <tr><td>image_path</td><td>keyword</td><td>Binary path of the installed service. Present on 7045.</td></tr>
+    <tr><td>image</td><td>keyword</td><td>Process that triggered the auth event. Present on 4648, 4688.</td></tr>
+  </table>
+
+  <h3>Logon type values (EID 4624)</h3>
+  <table class="ref-table">
+    <tr><th>logon_type</th><th>Name</th><th>Description</th></tr>
+    <tr><td>2</td><td>Interactive</td><td>Local keyboard/console logon.</td></tr>
+    <tr><td>3</td><td>Network</td><td>Network logon (SMB, RPC, named pipe). No credentials cached.</td></tr>
+    <tr><td>4</td><td>Batch</td><td>Scheduled task or batch job.</td></tr>
+    <tr><td>5</td><td>Service</td><td>Service startup under a user account.</td></tr>
+    <tr><td>10</td><td>RemoteInteractive</td><td>RDP or Terminal Services logon.</td></tr>
+    <tr><td>11</td><td>CachedInteractive</td><td>Logon using cached domain credentials.</td></tr>
+  </table>
+</section>
+
+<!-- ══════════════════════ SYSMON -->
+<section id="sysmon">
+  <h2>Sysmon Event IDs</h2>
+  <div class="eid-grid">
+    <div class="eid-card" style="border-top-color:#f59e0b">
+      <div class="eid-num" style="color:#f59e0b">1</div>
+      <div class="eid-name">Process Creation</div>
+      <div class="eid-desc">Fires every time a new process starts. Contains the full executable path, command line, parent process, user context, and file hashes. The <code>parent_image</code> field establishes the process tree.</div>
+      <div class="eid-fields">image · command_line · parent_image · hashes · process_guid · integrity_level</div>
+    </div>
+    <div class="eid-card" style="border-top-color:#3b82f6">
+      <div class="eid-num" style="color:#3b82f6">3</div>
+      <div class="eid-name">Network Connection</div>
+      <div class="eid-desc">Fires for each outbound TCP/UDP connection. Records the initiating process, source and destination endpoints. Only logs initiated (outbound) connections by default.</div>
+      <div class="eid-fields">image · dst_ip · dst_port · src_ip · src_port · protocol</div>
+    </div>
+    <div class="eid-card" style="border-top-color:#ef4444">
+      <div class="eid-num" style="color:#ef4444">10</div>
+      <div class="eid-name">Process Access</div>
+      <div class="eid-desc">Fires when a process opens a handle to another process using <code>OpenProcess()</code>. The <code>granted_access</code> field contains the access mask. <code>source_image</code> is the opener, <code>target_image</code> is the target.</div>
+      <div class="eid-fields">source_image · target_image · granted_access</div>
+    </div>
+    <div class="eid-card" style="border-top-color:#a78bfa">
+      <div class="eid-num" style="color:#a78bfa">11</div>
+      <div class="eid-name">File Created</div>
+      <div class="eid-desc">Fires when a file is created or overwritten on disk. The <code>target_filename</code> is the full path of the new file. <code>image</code> is the process that wrote it.</div>
+      <div class="eid-fields">image · target_filename · user</div>
+    </div>
+    <div class="eid-card" style="border-top-color:#06b6d4">
+      <div class="eid-num" style="color:#06b6d4">22</div>
+      <div class="eid-name">DNS Query</div>
+      <div class="eid-desc">Fires for every DNS lookup. <code>dns_query</code> is the queried name. <code>dns_result</code> contains the response — IP for A records, NXDOMAIN for non-existent domains.</div>
+      <div class="eid-fields">dns_query · dns_result · image</div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════ WINSEC -->
+<section id="winsec">
+  <h2>Windows Security Event IDs</h2>
+  <div class="eid-grid">
+    <div class="eid-card" style="border-top-color:#10b981">
+      <div class="eid-num" style="color:#10b981">4624</div>
+      <div class="eid-name">An account was successfully logged on</div>
+      <div class="eid-desc">Generated for every successful authentication. The <code>logon_type</code> field describes how the logon occurred. <code>src_ip</code> shows the originating address for network logons.</div>
+      <div class="eid-fields">user · logon_type · src_ip · logon_id</div>
+    </div>
+    <div class="eid-card" style="border-top-color:#f97316">
+      <div class="eid-num" style="color:#f97316">4648</div>
+      <div class="eid-name">A logon was attempted using explicit credentials</div>
+      <div class="eid-desc">Generated when a process explicitly supplies credentials — such as <code>runas</code>, or tools using <code>/user:</code> flags. The <code>service_name</code> field holds the target server name.</div>
+      <div class="eid-fields">user · image · service_name · src_ip</div>
+    </div>
+    <div class="eid-card" style="border-top-color:#eab308">
+      <div class="eid-num" style="color:#eab308">4688</div>
+      <div class="eid-name">A new process has been created</div>
+      <div class="eid-desc">Windows built-in equivalent of Sysmon EID 1. Enabled via audit policy. Contains command line and parent process name but no file hashes. Less detailed than EID 1 but present in the Security channel.</div>
+      <div class="eid-fields">image · command_line · parent_image · user</div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════ WINSYS -->
+<section id="winsys">
+  <h2>Windows System Event IDs</h2>
+  <div class="eid-grid">
+    <div class="eid-card" style="border-top-color:#ec4899">
+      <div class="eid-num" style="color:#ec4899">7045</div>
+      <div class="eid-name">A new service was installed in the system</div>
+      <div class="eid-desc">Generated in the System channel when the Service Control Manager registers a new service. Contains the service name, binary path, start type, and account. Logged on the host where the service is installed.</div>
+      <div class="eid-fields">service_name · image_path · user</div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════ INDEX SCHEMA -->
+<section id="index-schema">
+  <h2>Index Schema: ghost-relay-*</h2>
+  <p>Complete field listing with types for the <code>ghost-relay-*</code> index pattern.</p>
+  <table class="ref-table">
+    <tr><th>Field</th><th>Type</th><th>Event IDs</th></tr>
+    <tr><td>event_id</td><td>keyword</td><td>all</td></tr>
+    <tr><td>timestamp</td><td>datetime</td><td>all</td></tr>
+    <tr><td>record_id</td><td>keyword</td><td>all</td></tr>
+    <tr><td>host</td><td>keyword</td><td>all</td></tr>
+    <tr><td>channel</td><td>keyword</td><td>all</td></tr>
+    <tr><td>user</td><td>keyword</td><td>all</td></tr>
+    <tr><td>image</td><td>keyword</td><td>1, 3, 4688, 4648, 10, 11, 22</td></tr>
+    <tr><td>command_line</td><td>text / keyword</td><td>1, 4688</td></tr>
+    <tr><td>parent_image</td><td>keyword</td><td>1, 4688</td></tr>
+    <tr><td>process_id</td><td>keyword</td><td>1, 3, 4688</td></tr>
+    <tr><td>parent_process_id</td><td>keyword</td><td>1</td></tr>
+    <tr><td>process_guid</td><td>keyword</td><td>1, 3, 10, 11, 22</td></tr>
+    <tr><td>parent_process_guid</td><td>keyword</td><td>1</td></tr>
+    <tr><td>integrity_level</td><td>keyword</td><td>1</td></tr>
+    <tr><td>logon_id</td><td>keyword</td><td>1, 4624</td></tr>
+    <tr><td>hashes</td><td>keyword</td><td>1</td></tr>
+    <tr><td>dst_ip</td><td>ip</td><td>3</td></tr>
+    <tr><td>dst_port</td><td>keyword</td><td>3</td></tr>
+    <tr><td>src_ip</td><td>ip</td><td>3, 4624, 4648</td></tr>
+    <tr><td>src_port</td><td>keyword</td><td>3</td></tr>
+    <tr><td>protocol</td><td>keyword</td><td>3</td></tr>
+    <tr><td>target_filename</td><td>keyword</td><td>11</td></tr>
+    <tr><td>dns_query</td><td>keyword</td><td>22</td></tr>
+    <tr><td>dns_result</td><td>keyword</td><td>22</td></tr>
+    <tr><td>source_image</td><td>keyword</td><td>10</td></tr>
+    <tr><td>target_image</td><td>keyword</td><td>10</td></tr>
+    <tr><td>granted_access</td><td>keyword</td><td>10</td></tr>
+    <tr><td>logon_type</td><td>keyword</td><td>4624</td></tr>
+    <tr><td>service_name</td><td>keyword</td><td>7045, 4648</td></tr>
+    <tr><td>image_path</td><td>keyword</td><td>7045</td></tr>
+  </table>
+</section>
+
+<!-- ══════════════════════ CHANNELS -->
+<section id="channels">
+  <h2>Log Channels</h2>
+  <p>The <code>channel</code> field identifies which Windows event log the document originated from. Use this to restrict searches to a specific log source.</p>
+  <pre><code><span class="cm"># Sysmon events only</span>
+<span class="fld">channel</span>: <span class="wc">*Sysmon*</span>
+
+<span class="cm"># Windows Security events only</span>
+<span class="fld">channel</span>: <span class="val">"Security"</span>
+
+<span class="cm"># Windows System events only</span>
+<span class="fld">channel</span>: <span class="val">"System"</span></code></pre>
+
+  <table class="ref-table">
+    <tr><th>channel value</th><th>Description</th><th>Event IDs</th></tr>
+    <tr><td>Microsoft-Windows-Sysmon/Operational</td><td>Sysmon agent telemetry</td><td>1, 3, 10, 11, 22</td></tr>
+    <tr><td>Security</td><td>Windows Security Audit log</td><td>4624, 4648, 4688</td></tr>
+    <tr><td>System</td><td>Windows System log</td><td>7045</td></tr>
+  </table>
+</section>
+
+<div style="margin-top:60px;padding-top:20px;border-top:1px solid var(--border);font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text3)">
+  GhostRelay SIEM · Query Reference · ghost-relay-* · 1,551 documents
+</div>
+
+</main>
+
+<script>
+const links = document.querySelectorAll('a.nav-link');
+const sections = document.querySelectorAll('section[id], div.hero');
+const obs = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      links.forEach(l => l.classList.remove('active'));
+      const a = document.querySelector(`a.nav-link[href="#${e.target.id}"]`);
+      if (a) a.classList.add('active');
+    }
+  });
+}, {rootMargin:'-15% 0px -75% 0px'});
+sections.forEach(s => obs.observe(s));
+</script>
+</body>
+</html>
